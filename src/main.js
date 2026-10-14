@@ -6,12 +6,14 @@ import { createGround } from "./ground.js";
 import { createSky } from "./sky.js";
 import { createHills } from "./hills.js";
 import { createGrass } from "./grass.js";
+import { createProps } from "./props.js";
 import { createLightingUniforms, parseMood } from "./mood.js";
 import { createMoodController } from "./moodController.js";
 import { createControls } from "./controls.js";
 import "./style.css";
 
-// STEP 2: the grass is built in chunks around you, so it goes wherever you walk.
+// The engine's entry point. Everything about how the world looks comes from
+// worlds/karamoja/world.json. This file only wires the pieces together.
 
 const world = loadWorld("karamoja");
 let quality = pickStartingQuality();
@@ -19,6 +21,7 @@ let quality = pickStartingQuality();
 const container = document.querySelector("#game");
 const hud = document.querySelector("#hud");
 
+// Antialiasing can only be chosen once, so it is on for non-touch devices.
 const renderer = new THREE.WebGLRenderer({ antialias: !isTouchDevice() });
 container.appendChild(renderer.domElement);
 
@@ -26,6 +29,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color();
 scene.fog = new THREE.Fog(0xffffff, 10, 100);
 
+// One warm sun and one cool fill light. No real-time shadows.
 const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 const sunLight = new THREE.DirectionalLight(0xffffff, 1);
 scene.add(ambientLight, sunLight);
@@ -42,7 +46,8 @@ const ground = createGround(world.terrain, terrain, world.seed, quality, camera)
 const sky = createSky(lighting);
 const hills = createHills(world.hills, lighting, world.seed);
 const grass = createGrass(world.grass, world.wind, terrain, world.seed, lighting, quality, camera);
-scene.add(sky.mesh, hills.group, ground.group, grass.group);
+const props = createProps(world.props, terrain, world.seed, quality, world.camera.start);
+scene.add(sky.mesh, hills.group, ground.group, grass.group, props.group);
 
 const moods = world.moods.map(parseMood);
 const startIndex = Math.max(0, moods.findIndex((m) => m.id === world.defaultMood));
@@ -64,6 +69,7 @@ function resize() {
 function applyQuality() {
   ground.setQuality(quality);
   grass.setQuality(quality);
+  props.setQuality(quality);
   resize();
 }
 
@@ -76,19 +82,28 @@ window.addEventListener("keydown", (event) => {
 });
 resize();
 
+// Triangle counts for both presets, worked out from the settings.
+// (Trees and rocks are counted as they stand around the start position.)
+props.update(camera);
 const totalTriangles = (q) =>
-  ground.trianglesFor(q) + grass.trianglesFor(q) + sky.triangles + hills.triangles;
+  ground.trianglesFor(q) +
+  grass.trianglesFor(q) +
+  sky.triangles +
+  hills.triangles +
+  props.trianglesFor(q);
 console.table({
   LOW: {
     ground: ground.trianglesFor(QUALITY.LOW),
     grass: grass.trianglesFor(QUALITY.LOW),
     "sky+hills": sky.triangles + hills.triangles,
+    "trees+rocks": props.trianglesFor(QUALITY.LOW),
     total: totalTriangles(QUALITY.LOW),
   },
   HIGH: {
     ground: ground.trianglesFor(QUALITY.HIGH),
     grass: grass.trianglesFor(QUALITY.HIGH),
     "sky+hills": sky.triangles + hills.triangles,
+    "trees+rocks": props.trianglesFor(QUALITY.HIGH),
     total: totalTriangles(QUALITY.HIGH),
   },
 });
@@ -113,6 +128,7 @@ function frame(now) {
   moodController.update(delta);
   ground.update(camera);
   grass.update(elapsed, camera);
+  props.update(camera);
   hills.update(camera);
   sky.update(camera);
   renderer.render(scene, camera);
