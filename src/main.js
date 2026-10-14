@@ -4,11 +4,12 @@ import { pickStartingQuality, isTouchDevice } from "./quality.js";
 import { createTerrain } from "./terrain.js";
 import { createGround } from "./ground.js";
 import { createSky } from "./sky.js";
+import { createGrass } from "./grass.js";
 import { createLightingUniforms, parseMood, applyMood } from "./mood.js";
 import "./style.css";
 
-// STEP C: ground and sky, with the default mood applied. The camera is fixed
-// for now (walking comes in step E). No grass yet.
+// STEP D: ground, sky and grass swaying in the wind. The camera is still
+// fixed (walking comes in step E).
 
 const world = loadWorld("karamoja");
 const quality = pickStartingQuality();
@@ -25,7 +26,6 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color();
 scene.fog = new THREE.Fog(0xffffff, 10, 100);
 
-// One warm sun and one cool fill light. No shadows.
 const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 const sunLight = new THREE.DirectionalLight(0xffffff, 1);
 scene.add(ambientLight, sunLight);
@@ -41,14 +41,20 @@ const lighting = createLightingUniforms();
 const terrain = createTerrain(world.terrain, world.seed);
 const ground = createGround(world.terrain, terrain, world.seed, quality);
 const sky = createSky(lighting);
-scene.add(sky.mesh, ground.mesh);
+const grass = createGrass(world.grass, world.wind, terrain, world.seed, lighting, quality);
+scene.add(sky.mesh, ground.mesh, grass.group);
 
-// Apply the default mood from the manifest.
 const moods = world.moods.map(parseMood);
 const startMood = moods.find((m) => m.id === world.defaultMood) ?? moods[0];
-applyMood(startMood, { scene, sunLight, ambientLight, lighting, sky: sky.uniforms });
+applyMood(startMood, {
+  scene,
+  sunLight,
+  ambientLight,
+  lighting,
+  sky: sky.uniforms,
+  grass: grass.uniforms,
+});
 
-// Fixed camera at the start spot, looking toward the start bearing.
 const [startX, startZ] = world.camera.start;
 camera.position.set(startX, terrain.heightAt(startX, startZ) + world.camera.eyeHeight, startZ);
 camera.rotation.order = "YXZ";
@@ -60,10 +66,18 @@ window.addEventListener("resize", () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
+let last = null;
+let elapsed = 0;
 let hudShown = false;
 
-function frame() {
+function frame(now) {
   requestAnimationFrame(frame);
+  if (last === null) last = now;
+  const delta = Math.min(Math.max((now - last) / 1000, 0), 0.05);
+  last = now;
+  elapsed += delta;
+
+  grass.update(elapsed);
   sky.update(camera);
   renderer.render(scene, camera);
 
@@ -75,4 +89,4 @@ function frame() {
   }
 }
 
-frame();
+requestAnimationFrame(frame);
