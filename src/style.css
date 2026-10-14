@@ -1,38 +1,37 @@
-* {
-  box-sizing: border-box;
-}
-
 html,
-body,
-#game {
-  width: 100%;
-  height: 100%;
+body {
   margin: 0;
+  height: 100%;
   overflow: hidden;
+  background: #1b1713;
+  font-family: system-ui, sans-serif;
 }
 
-body {
-  background: #9b704c;
-  font-family: system-ui, sans-serif;
+#game {
+  position: fixed;
+  inset: 0;
 }
 
 #game canvas {
   display: block;
-  width: 100%;
-  height: 100%;
+  touch-action: none;
+  cursor: grab;
 }
 
-#help {
-  position: absolute;
-  z-index: 1;
-  top: 12px;
-  left: 50%;
-  padding: 8px 12px;
+#game canvas:active {
+  cursor: grabbing;
+}
+
+#hud {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  padding: 8px 10px;
   border-radius: 8px;
-  background: rgb(50 37 27 / 72%);
-  color: #fff3dc;
-  font-size: 14px;
-  text-align: center;
-  transform: translateX(-50%);
+  background: rgba(20, 16, 12, 0.55);
+  color: #f4e8d4;
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-line;
   pointer-events: none;
 }
