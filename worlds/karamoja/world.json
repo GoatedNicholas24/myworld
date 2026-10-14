@@ -1,0 +1,84 @@
+{
+  "id": "karamoja",
+  "name": "Karamoja",
+  "description": "Open dry savannah in north-eastern Uganda.",
+  "location": {
+    "place": "Karamoja sub-region, north-eastern Uganda",
+    "latitude": 2.6,
+    "longitude": 34.3
+  },
+  "seed": 1410,
+  "defaultMood": "goldenHour",
+  "terrain": {
+    "size": 300,
+    "hillHeight": 2.6,
+    "hillScale": 80,
+    "groundColor": "#7d6a43",
+    "dryGroundColor": "#a08a58",
+    "soilColor": "#9b5f3b",
+    "soilPatchCount": 6,
+    "soilPatchRadius": [4, 9],
+    "soilPatchSpread": 38
+  },
+  "grass": {
+    "fieldRadius": 45,
+    "density": 10,
+    "bladeHeight": [0.35, 0.9],
+    "bladeWidth": 0.085,
+    "lean": [0.1, 0.45]
+  },
+  "wind": {
+    "direction": [1, 0.35],
+    "speed": 2.2,
+    "waveLength": 22,
+    "strength": 0.3
+  },
+  "camera": {
+    "fov": 65,
+    "eyeHeight": 1.25,
+    "walkSpeed": 2.5,
+    "runSpeed": 7,
+    "walkRadius": 36,
+    "start": [0, 0],
+    "startBearing": 235
+  },
+  "moods": [
+    {
+      "id": "goldenHour",
+      "label": "Golden hour",
+      "sky": { "top": "#45648f", "middle": "#d99a62", "horizon": "#f2c185" },
+      "fog": { "color": "#f2c185", "near": 12, "far": 105 },
+      "sun": { "color": "#ffb15c", "intensity": 1.25, "elevation": 11, "azimuth": 250, "glow": 1.0 },
+      "ambient": { "color": "#6f7fa8", "intensity": 0.55 },
+      "grass": { "dry": "#d1b068", "olive": "#8a8a42", "fresh": "#6f9a3c" }
+    },
+    {
+      "id": "midday",
+      "label": "Midday",
+      "sky": { "top": "#3f78c8", "middle": "#86b4e0", "horizon": "#d6e4e8" },
+      "fog": { "color": "#d6e4e8", "near": 25, "far": 110 },
+      "sun": { "color": "#fff1d6", "intensity": 1.15, "elevation": 68, "azimuth": 160, "glow": 0.35 },
+      "ambient": { "color": "#8aa6d6", "intensity": 0.7 },
+      "grass": { "dry": "#cdb56f", "olive": "#8c9444", "fresh": "#74a043" }
+    },
+    {
+      "id": "overcast",
+      "label": "Overcast",
+      "sky": { "top": "#7f8c97", "middle": "#a3adb3", "horizon": "#bfc6c8" },
+      "fog": { "color": "#bfc6c8", "near": 8, "far": 85 },
+      "sun": { "color": "#e6e8e8", "intensity": 0.35, "elevation": 45, "azimuth": 200, "glow": 0.05 },
+      "ambient": { "color": "#9aa5b0", "intensity": 0.95 },
+      "grass": { "dry": "#b3a06a", "olive": "#77803f", "fresh": "#64883b" }
+    },
+    {
+      "id": "dawn",
+      "label": "Dawn",
+      "sky": { "top": "#34456e", "middle": "#c58f9a", "horizon": "#f1b79a" },
+      "fog": { "color": "#f1b79a", "near": 10, "far": 95 },
+      "sun": { "color": "#ff9f7a", "intensity": 0.95, "elevation": 6, "azimuth": 85, "glow": 0.9 },
+      "ambient": { "color": "#6a78a6", "intensity": 0.5 },
+      "grass": { "dry": "#c2a468", "olive": "#7b8044", "fresh": "#648f46" }
+    }
+  ],
+  "assets": []
+}
