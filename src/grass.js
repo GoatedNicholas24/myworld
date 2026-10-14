@@ -1,18 +1,19 @@
 import * as THREE from "three";
-import { fbm, makeRandom } from "./noise.js";
+import { fbm, makeRandom, hashCell } from "./noise.js";
+import { createChunkManager, countChunks } from "./chunks.js";
 
 const TAU = Math.PI * 2;
 const lerp = (a, b, t) => a + (b - a) * t;
 const clamp = (v, low, high) => Math.min(Math.max(v, low), high);
-const smoothstep = (edge0, edge1, x) => {
-  const t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
-  return t * t * (3 - 2 * t);
-};
 
 // Each blade is one instance of the same tiny shape. The shader below bends
-// it, sways it in the wind and colours it, so the CPU does almost no work.
+// it, sways it in the wind, shrinks it with distance and colours it, so the
+// CPU does almost no work.
 const vertexShader = /* glsl */ `
   uniform float uTime;
+  uniform vec3 uCameraPos;
+  uniform float uFadeStart;
+  uniform float uFadeEnd;
   uniform vec2 uWindDir;
   uniform float uWindSpeed;
   uniform float uWindWaveLength;
@@ -48,6 +49,12 @@ const vertexShader = /* glsl */ `
     float bend = sway * uWindStrength * bladeHeight * t * t;
     world.xz += uWindDir * bend;
     world.y -= abs(bend) * 0.3;
+
+    // Far blades shrink down to their root, so the edge of the grass
+    // melts away instead of ending in a visible line.
+    float distanceToCamera = distance(root.xz, uCameraPos.xz);
+    float fade = 1.0 - smoothstep(uFadeStart, uFadeEnd, distanceToCamera);
+    world.xyz = mix(root, world.xyz, fade);
 
     vec4 viewPosition = viewMatrix * world;
     gl_Position = projectionMatrix * viewPosition;
@@ -124,10 +131,17 @@ function createBladeGeometry(segments) {
   return geometry;
 }
 
-export function createGrass(settings, wind, terrain, seed, lighting, quality) {
+export function createGrass(settings, wind, terrain, seed, lighting, quality, camera) {
+  const chunkSize = settings.chunkSize;
+  // Chunks are built a little beyond the point where blades fade out.
+  const loadRadius = settings.fieldRadius + chunkSize * 0.9;
+
   const uniforms = {
     ...lighting,
     uTime: { value: 0 },
+    uCameraPos: { value: new THREE.Vector3() },
+    uFadeStart: { value: settings.fieldRadius * 0.7 },
+    uFadeEnd: { value: settings.fieldRadius },
     uWindDir: { value: new THREE.Vector2(wind.direction[0], wind.direction[1]).normalize() },
     uWindSpeed: { value: wind.speed },
     uWindWaveLength: { value: wind.waveLength },
@@ -146,79 +160,116 @@ export function createGrass(settings, wind, terrain, seed, lighting, quality) {
   });
 
   const group = new THREE.Group();
-  let blades = null;
-  let bladeCount = 0;
-  let trianglesPerBlade = 0;
+  const pool = []; // chunk meshes that are not in use, kept for reuse
+  let current = quality;
+  let bladeGeometry = null;
+  let capacity = 0;
 
-  const bladeCountFor = (q) =>
-    Math.round(Math.PI * settings.fieldRadius * settings.fieldRadius * settings.density * q.grassDensityScale);
-  const trianglesPerBladeFor = (q) => 2 * (q.bladeSegments - 1) + 1;
+  const bladesPerChunk = (q) =>
+    Math.round(chunkSize * chunkSize * settings.density * q.grassDensityScale);
+  const trianglesPerBlade = (q) => 2 * (q.bladeSegments - 1) + 1;
+  const chunkCount = countChunks(chunkSize, loadRadius);
 
-  function setQuality(q) {
-    if (blades) {
-      group.remove(blades);
-      blades.geometry.dispose();
-      blades.dispose();
-    }
+  function createChunkMesh() {
+    // Each chunk needs its own copy of the tiny blade shape, because the
+    // per-blade colour/lean numbers are stored on it.
+    const geometry = bladeGeometry.clone();
+    geometry.setAttribute(
+      "aParams",
+      new THREE.InstancedBufferAttribute(new Float32Array(capacity * 3), 3),
+    );
+    const mesh = new THREE.InstancedMesh(geometry, material, capacity);
+    mesh.boundingSphere = new THREE.Sphere(); // set properly when the chunk is filled
+    return mesh;
+  }
 
-    const count = bladeCountFor(q);
-    const geometry = createBladeGeometry(q.bladeSegments);
-    blades = new THREE.InstancedMesh(geometry, material, count);
-    blades.frustumCulled = false;
+  // Scatter the blades of one chunk. The same chunk always gets the same blades.
+  function fillChunk(mesh, ix, iz) {
+    const random = makeRandom(hashCell(ix, iz, seed + 101));
+    const params = mesh.geometry.attributes.aParams;
+    const x0 = ix * chunkSize;
+    const z0 = iz * chunkSize;
 
-    const random = makeRandom(seed + 101);
-    const params = new Float32Array(count * 3);
     const matrix = new THREE.Matrix4();
     const position = new THREE.Vector3();
     const rotation = new THREE.Quaternion();
     const scale = new THREE.Vector3();
     const up = new THREE.Vector3(0, 1, 0);
-
-    const radius = settings.fieldRadius;
     const [minHeight, maxHeight] = settings.bladeHeight;
     const [minLean, maxLean] = settings.lean;
 
     let placed = 0;
-    let attempts = 0;
-    while (placed < count && attempts < count * 20) {
-      attempts++;
-
-      // Pick a random spot inside a circle around the middle.
-      const r = radius * Math.sqrt(random());
-      const angle = random() * TAU;
-      const x = Math.cos(angle) * r;
-      const z = Math.sin(angle) * r;
+    for (let slot = 0; slot < capacity; slot++) {
+      const x = x0 + random() * chunkSize;
+      const z = z0 + random() * chunkSize;
 
       // No grass on bare soil patches.
       if (random() < terrain.soilAt(x, z) * 1.15) continue;
 
-      // Taller and shorter clumps, and blades fade to short at the field's edge.
+      // Taller and shorter clumps across the land.
       const clump = 0.7 + 0.6 * fbm(x / 7 + 40, z / 7 + 40, seed + 6, 2);
-      const edge = 1 - smoothstep(radius * 0.8, radius, r);
-      const height = lerp(minHeight, maxHeight, random()) * clump * (0.15 + 0.85 * edge);
-      const width = settings.bladeWidth * q.bladeWidthScale * (0.8 + 0.5 * random());
+      const height = lerp(minHeight, maxHeight, random()) * clump;
+      const width = settings.bladeWidth * current.bladeWidthScale * (0.8 + 0.5 * random());
 
       position.set(x, terrain.heightAt(x, z) - 0.03, z);
       rotation.setFromAxisAngle(up, random() * TAU);
       scale.set(width, height, height);
       matrix.compose(position, rotation, scale);
-      blades.setMatrixAt(placed, matrix);
+      mesh.setMatrixAt(placed, matrix);
 
-      // Colour tone: dry and green patches across the field, plus random variety.
+      // Colour tone: dry and green patches across the land, plus random variety.
       const patchTone = clamp((fbm(x / 14 + 90, z / 14 + 90, seed + 3, 2) - 0.5) * 2.4 + 0.5, 0, 1);
-      params[placed * 3] = clamp(patchTone * 0.7 + random() * 0.3, 0, 1);
-      params[placed * 3 + 1] = lerp(minLean, maxLean, random());
-      params[placed * 3 + 2] = random() * TAU;
+      params.array[placed * 3] = clamp(patchTone * 0.7 + random() * 0.3, 0, 1);
+      params.array[placed * 3 + 1] = lerp(minLean, maxLean, random());
+      params.array[placed * 3 + 2] = random() * TAU;
 
       placed++;
     }
 
-    blades.count = placed;
-    geometry.setAttribute("aParams", new THREE.InstancedBufferAttribute(params, 3));
-    group.add(blades);
+    mesh.count = placed;
+    mesh.instanceMatrix.needsUpdate = true;
+    params.needsUpdate = true;
 
-    bladeCount = placed;
-    trianglesPerBlade = trianglesPerBladeFor(q);
+    // Tells Three.js where this chunk is, so chunks behind you are skipped.
+    mesh.boundingSphere.center.set(
+      x0 + chunkSize / 2,
+      terrain.heightAt(x0 + chunkSize / 2, z0 + chunkSize / 2),
+      z0 + chunkSize / 2,
+    );
+    mesh.boundingSphere.radius = chunkSize * 0.75 + 14;
+  }
+
+  function build(ix, iz) {
+    const mesh = pool.pop() ?? createChunkMesh();
+    fillChunk(mesh, ix, iz);
+    mesh.visible = true;
+    if (!mesh.parent) group.add(mesh);
+    return mesh;
+  }
+
+  function release(mesh) {
+    mesh.visible = false;
+    pool.push(mesh);
+  }
+
+  const manager = createChunkManager({ chunkSize, loadRadius, build, release, perFrame: 2 });
+
+  function setQuality(q) {
+    current = q;
+
+    for (const mesh of group.children) {
+      mesh.geometry.dispose();
+      mesh.dispose();
+    }
+    group.clear();
+    pool.length = 0;
+    manager.clear();
+
+    if (bladeGeometry) bladeGeometry.dispose();
+    bladeGeometry = createBladeGeometry(q.bladeSegments);
+    capacity = bladesPerChunk(q);
+
+    manager.rebuildAll(camera.position.x, camera.position.z);
   }
 
   setQuality(quality);
@@ -227,10 +278,11 @@ export function createGrass(settings, wind, terrain, seed, lighting, quality) {
     group,
     uniforms,
     setQuality,
-    update(time) {
+    update(time, cam) {
       uniforms.uTime.value = time;
+      uniforms.uCameraPos.value.copy(cam.position);
+      manager.update(cam.position.x, cam.position.z);
     },
-    trianglesFor: (q) => bladeCountFor(q) * trianglesPerBladeFor(q),
-    triangles: () => bladeCount * trianglesPerBlade,
+    trianglesFor: (q) => chunkCount * bladesPerChunk(q) * trianglesPerBlade(q),
   };
 }

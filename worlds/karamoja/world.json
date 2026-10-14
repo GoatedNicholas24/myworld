@@ -10,19 +10,23 @@
   "seed": 1410,
   "defaultMood": "goldenHour",
   "terrain": {
-    "size": 300,
     "hillHeight": 2.6,
     "hillScale": 80,
+    "largeHillHeight": 16,
+    "largeHillScale": 450,
+    "groundChunkSize": 60,
+    "groundLoadRadius": 200,
     "groundColor": "#7d6a43",
     "dryGroundColor": "#a08a58",
     "soilColor": "#9b5f3b",
-    "soilPatchCount": 6,
-    "soilPatchRadius": [4, 9],
-    "soilPatchSpread": 38
+    "soilPatchCellSize": 90,
+    "soilPatchesPerCell": 1.4,
+    "soilPatchRadius": [4, 10]
   },
   "grass": {
-    "fieldRadius": 45,
-    "density": 10,
+    "fieldRadius": 42,
+    "chunkSize": 12,
+    "density": 7,
     "bladeHeight": [0.35, 0.9],
     "bladeWidth": 0.085,
     "lean": [0.1, 0.45]
@@ -33,12 +37,37 @@
     "waveLength": 22,
     "strength": 0.3
   },
+  "hills": {
+    "segments": 128,
+    "layers": [
+      { "distance": 520, "baseHeight": 18, "amplitude": 70, "frequency": 1.6, "tint": "#5c6046", "haze": 0.55 },
+      { "distance": 780, "baseHeight": 30, "amplitude": 110, "frequency": 2.0, "tint": "#6a6f5a", "haze": 0.72 },
+      { "distance": 1050, "baseHeight": 40, "amplitude": 150, "frequency": 2.4, "tint": "#7c8070", "haze": 0.86 }
+    ]
+  },
+  "props": {
+    "keepClearRadius": 16,
+    "acacia": {
+      "density": 2.5,
+      "cellSize": 40,
+      "viewRadius": 230,
+      "scale": [0.8, 1.5],
+      "clumpScale": 140
+    },
+    "rocks": {
+      "density": 30,
+      "cellSize": 30,
+      "viewRadius": 150,
+      "size": [0.12, 0.55],
+      "colors": ["#6a5d4e", "#a89984"]
+    }
+  },
   "camera": {
     "fov": 65,
     "eyeHeight": 1.25,
-    "walkSpeed": 2.5,
-    "runSpeed": 7,
-    "walkRadius": 36,
+    "walkSpeed": 3,
+    "runSpeed": 12,
+    "walkRadius": 600,
     "start": [0, 0],
     "startBearing": 235
   },
@@ -47,7 +76,7 @@
       "id": "goldenHour",
       "label": "Golden hour",
       "sky": { "top": "#45648f", "middle": "#d99a62", "horizon": "#f2c185" },
-      "fog": { "color": "#f2c185", "near": 12, "far": 105 },
+      "fog": { "color": "#f2c185", "near": 12, "far": 140 },
       "sun": { "color": "#ffb15c", "intensity": 1.25, "elevation": 11, "azimuth": 250, "glow": 1.0 },
       "ambient": { "color": "#6f7fa8", "intensity": 0.55 },
       "grass": { "dry": "#d1b068", "olive": "#8a8a42", "fresh": "#6f9a3c" }
@@ -56,7 +85,7 @@
       "id": "midday",
       "label": "Midday",
       "sky": { "top": "#3f78c8", "middle": "#86b4e0", "horizon": "#d6e4e8" },
-      "fog": { "color": "#d6e4e8", "near": 25, "far": 110 },
+      "fog": { "color": "#d6e4e8", "near": 25, "far": 160 },
       "sun": { "color": "#fff1d6", "intensity": 1.15, "elevation": 68, "azimuth": 160, "glow": 0.35 },
       "ambient": { "color": "#8aa6d6", "intensity": 0.7 },
       "grass": { "dry": "#cdb56f", "olive": "#8c9444", "fresh": "#74a043" }
@@ -65,7 +94,7 @@
       "id": "overcast",
       "label": "Overcast",
       "sky": { "top": "#7f8c97", "middle": "#a3adb3", "horizon": "#bfc6c8" },
-      "fog": { "color": "#bfc6c8", "near": 8, "far": 85 },
+      "fog": { "color": "#bfc6c8", "near": 8, "far": 100 },
       "sun": { "color": "#e6e8e8", "intensity": 0.35, "elevation": 45, "azimuth": 200, "glow": 0.05 },
       "ambient": { "color": "#9aa5b0", "intensity": 0.95 },
       "grass": { "dry": "#b3a06a", "olive": "#77803f", "fresh": "#64883b" }
@@ -74,7 +103,7 @@
       "id": "dawn",
       "label": "Dawn",
       "sky": { "top": "#34456e", "middle": "#c58f9a", "horizon": "#f1b79a" },
-      "fog": { "color": "#f1b79a", "near": 10, "far": 95 },
+      "fog": { "color": "#f1b79a", "near": 10, "far": 125 },
       "sun": { "color": "#ff9f7a", "intensity": 0.95, "elevation": 6, "azimuth": 85, "glow": 0.9 },
       "ambient": { "color": "#6a78a6", "intensity": 0.5 },
       "grass": { "dry": "#c2a468", "olive": "#7b8044", "fresh": "#648f46" }

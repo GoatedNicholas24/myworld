@@ -3,7 +3,7 @@
 // so adding a new world folder later needs no engine changes.
 const manifests = import.meta.glob("../worlds/*/world.json", { eager: true });
 
-const REQUIRED_KEYS = ["name", "location", "terrain", "grass", "wind", "camera", "moods"];
+const REQUIRED_KEYS = ["name", "location", "terrain", "grass", "wind", "hills", "props", "camera", "moods"];
 
 export function loadWorld(id) {
   const file = manifests[`../worlds/${id}/world.json`];

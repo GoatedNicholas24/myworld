@@ -4,14 +4,14 @@ import { QUALITY, pickStartingQuality, nextQuality, isTouchDevice } from "./qual
 import { createTerrain } from "./terrain.js";
 import { createGround } from "./ground.js";
 import { createSky } from "./sky.js";
+import { createHills } from "./hills.js";
 import { createGrass } from "./grass.js";
 import { createLightingUniforms, parseMood } from "./mood.js";
 import { createMoodController } from "./moodController.js";
 import { createControls } from "./controls.js";
 import "./style.css";
 
-// The engine's entry point. Everything about how the world looks comes from
-// worlds/karamoja/world.json. This file only wires the pieces together.
+// STEP 2: the grass is built in chunks around you, so it goes wherever you walk.
 
 const world = loadWorld("karamoja");
 let quality = pickStartingQuality();
@@ -19,7 +19,6 @@ let quality = pickStartingQuality();
 const container = document.querySelector("#game");
 const hud = document.querySelector("#hud");
 
-// Antialiasing can only be chosen once, so it is on for non-touch devices.
 const renderer = new THREE.WebGLRenderer({ antialias: !isTouchDevice() });
 container.appendChild(renderer.domElement);
 
@@ -27,7 +26,6 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color();
 scene.fog = new THREE.Fog(0xffffff, 10, 100);
 
-// One warm sun and one cool fill light. No real-time shadows.
 const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 const sunLight = new THREE.DirectionalLight(0xffffff, 1);
 scene.add(ambientLight, sunLight);
@@ -35,11 +33,16 @@ scene.add(ambientLight, sunLight);
 const camera = new THREE.PerspectiveCamera(world.camera.fov, 1, 0.2, 1500);
 
 const lighting = createLightingUniforms();
-const terrain = createTerrain(world.terrain, world.seed);
-const ground = createGround(world.terrain, terrain, world.seed, quality);
+const terrain = createTerrain(world.terrain, world.seed, world.camera.start);
+
+// The controls place the camera at the start, so they come before the world parts.
+const controls = createControls(camera, renderer.domElement, terrain, world.camera);
+
+const ground = createGround(world.terrain, terrain, world.seed, quality, camera);
 const sky = createSky(lighting);
-const grass = createGrass(world.grass, world.wind, terrain, world.seed, lighting, quality);
-scene.add(sky.mesh, ground.mesh, grass.group);
+const hills = createHills(world.hills, lighting, world.seed);
+const grass = createGrass(world.grass, world.wind, terrain, world.seed, lighting, quality, camera);
+scene.add(sky.mesh, hills.group, ground.group, grass.group);
 
 const moods = world.moods.map(parseMood);
 const startIndex = Math.max(0, moods.findIndex((m) => m.id === world.defaultMood));
@@ -48,8 +51,6 @@ const moodController = createMoodController(
   { scene, sunLight, ambientLight, lighting, sky: sky.uniforms, grass: grass.uniforms },
   startIndex,
 );
-
-const controls = createControls(camera, renderer.domElement, terrain, world.camera);
 
 // ---- Quality and size -------------------------------------------------------
 
@@ -75,19 +76,19 @@ window.addEventListener("keydown", (event) => {
 });
 resize();
 
-// Triangle counts for both presets, worked out from the settings.
-const totalTriangles = (q) => ground.trianglesFor(q) + grass.trianglesFor(q) + sky.triangles;
+const totalTriangles = (q) =>
+  ground.trianglesFor(q) + grass.trianglesFor(q) + sky.triangles + hills.triangles;
 console.table({
   LOW: {
     ground: ground.trianglesFor(QUALITY.LOW),
     grass: grass.trianglesFor(QUALITY.LOW),
-    sky: sky.triangles,
+    "sky+hills": sky.triangles + hills.triangles,
     total: totalTriangles(QUALITY.LOW),
   },
   HIGH: {
     ground: ground.trianglesFor(QUALITY.HIGH),
     grass: grass.trianglesFor(QUALITY.HIGH),
-    sky: sky.triangles,
+    "sky+hills": sky.triangles + hills.triangles,
     total: totalTriangles(QUALITY.HIGH),
   },
 });
@@ -110,7 +111,9 @@ function frame(now) {
 
   controls.update(delta);
   moodController.update(delta);
-  grass.update(elapsed);
+  ground.update(camera);
+  grass.update(elapsed, camera);
+  hills.update(camera);
   sky.update(camera);
   renderer.render(scene, camera);
 

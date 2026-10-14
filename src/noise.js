@@ -11,6 +11,15 @@ export function makeRandom(seed) {
   };
 }
 
+// Turns a grid cell (ix, iz) into a repeatable number.
+// Used so that every chunk of the world always gets the same random layout.
+export function hashCell(ix, iz, salt = 0) {
+  let h = Math.imul(ix, 73856093) ^ Math.imul(iz, 19349663) ^ Math.imul(salt, 83492791);
+  h = Math.imul(h ^ (h >>> 15), 2246822519);
+  h = Math.imul(h ^ (h >>> 13), 3266489917);
+  return (h ^ (h >>> 16)) >>> 0;
+}
+
 function hash2(ix, iz, seed) {
   let h = Math.imul(ix, 374761393) ^ Math.imul(iz, 668265263) ^ Math.imul(seed, 1442695041);
   h = Math.imul(h ^ (h >>> 13), 1274126177);

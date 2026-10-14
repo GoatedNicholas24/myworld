@@ -6,7 +6,8 @@ export const QUALITY = {
     grassDensityScale: 0.25, // a quarter of the blades
     bladeSegments: 2, // simpler blades (3 triangles each)
     bladeWidthScale: 1.6, // wider blades so fewer of them still look full
-    groundSegments: 96,
+    groundSegments: 15, // ground detail per 60 m chunk (one point every 4 m)
+    treeDetail: 0, // simplest tree shapes
   },
   HIGH: {
     name: "HIGH",
@@ -14,7 +15,8 @@ export const QUALITY = {
     grassDensityScale: 1,
     bladeSegments: 3, // 5 triangles each
     bladeWidthScale: 1,
-    groundSegments: 192,
+    groundSegments: 30, // one point every 2 m
+    treeDetail: 1,
   },
 };
 
