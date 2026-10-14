@@ -35,3 +35,72 @@ body {
   white-space: pre-line;
   pointer-events: none;
 }
+
+#map-button {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(20, 16, 12, 0.55);
+  color: #f4e8d4;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+#map-button:hover {
+  background: rgba(20, 16, 12, 0.8);
+}
+
+#map-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 16, 12, 0.6);
+  display: grid;
+  place-items: center;
+}
+
+#map-overlay[hidden] {
+  display: none;
+}
+
+.map-panel {
+  background: #efe4cc;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  max-width: 96vw;
+}
+
+.map-panel h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: #3a2f22;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.map-close {
+  border: 0;
+  background: none;
+  font-size: 24px;
+  line-height: 1;
+  color: #3a2f22;
+  cursor: pointer;
+}
+
+.map-panel canvas {
+  display: block;
+  border-radius: 8px;
+}
+
+.map-panel p {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: #6b5b45;
+  max-width: 70ch;
+}

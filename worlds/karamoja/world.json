@@ -60,6 +60,11 @@
       "viewRadius": 150,
       "size": [0.12, 0.55],
       "colors": ["#6a5d4e", "#a89984"]
+    },
+    "village": {
+      "center": [-30, 20],
+      "homesteads": 4,
+      "householdRadius": 12.5
     }
   },
   "camera": {

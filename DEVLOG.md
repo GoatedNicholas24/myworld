@@ -1,5 +1,23 @@
 # Dev Log
 
+## 2026-10-14 (session 3): First village
+
+**What was built**
+- Added four homesteads around a shared cattle kraal near the starting view, with low earthen huts, rounded thatch roofs, doors, and simple timber enclosures.
+- Village location and household layout are set in the Karamoja `world.json`; trees and rocks leave room around the homes and kraal.
+- Added the village's exact triangle count to the LOW/HIGH startup report.
+
+**Triangle counts**
+- Village: 3,720 triangles, built from shared instanced meshes and printed as `village` in the startup report.
+- Adds 3,720 triangles to both LOW and HIGH.
+- LOW and HIGH totals also include the village.
+
+**Files changed**
+- Changed: `src/props.js`, `src/main.js`, `worlds/karamoja/world.json`, `DEVLOG.md`
+
+**Next step**
+- Add a small herd of cattle near the village.
+
 ## 2026-10-14 (session 2): Bigger world and first enrichment
 
 **What was built**

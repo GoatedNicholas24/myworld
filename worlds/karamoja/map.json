@@ -1,0 +1,78 @@
+{
+  "source": "Positions from public sources (Wikipedia, GeoNames). Roads are straight lines between towns; river courses are schematic. Please check against local knowledge.",
+  "mountainHaze": 45000,
+  "start": {
+    "lat": 2.5282,
+    "lon": 34.6715,
+    "elevation": 1400,
+    "note": "Eastern edge of Moroto town, facing Mount Moroto. Change these numbers to start somewhere else."
+  },
+  "towns": [
+    { "name": "Moroto", "lat": 2.5282, "lon": 34.658, "major": true },
+    { "name": "Kotido", "lat": 3.0061, "lon": 34.1125 },
+    { "name": "Kaabong", "lat": 3.52, "lon": 34.12 },
+    { "name": "Karenga", "lat": 3.5691, "lon": 33.6931, "side": "left" },
+    { "name": "Abim", "lat": 2.7017, "lon": 33.6761, "side": "left" },
+    { "name": "Napak", "lat": 2.1156, "lon": 34.2267, "side": "left" },
+    { "name": "Nabilatuk", "lat": 2.05, "lon": 34.57, "side": "left" },
+    { "name": "Nakapiripirit", "lat": 1.8522, "lon": 34.7214, "side": "left" },
+    { "name": "Amudat", "lat": 1.95, "lon": 34.95 }
+  ],
+  "mountains": [
+    {
+      "name": "Mt Moroto",
+      "lat": 2.525,
+      "lon": 34.7725,
+      "elevation": 3083,
+      "baseElevation": 1400,
+      "radiusX": 6500,
+      "radiusZ": 10500,
+      "colors": { "low": "#8a7a4a", "mid": "#5d6b3c", "high": "#7d7364" }
+    },
+    {
+      "name": "Mt Kadam",
+      "lat": 1.7625,
+      "lon": 34.7092,
+      "elevation": 3063,
+      "baseElevation": 1200,
+      "radiusX": 8000,
+      "radiusZ": 8000,
+      "colors": { "low": "#8a7a4a", "mid": "#546b3a", "high": "#7d7364" }
+    },
+    {
+      "name": "Mt Napak",
+      "lat": 2.0667,
+      "lon": 34.2833,
+      "elevation": 2538,
+      "baseElevation": 1200,
+      "radiusX": 4500,
+      "radiusZ": 4500,
+      "side": "left",
+      "colors": { "low": "#8a7a4a", "mid": "#4f6a38", "high": "#7d7364" }
+    },
+    {
+      "name": "Mt Morungole",
+      "lat": 3.817,
+      "lon": 34.033,
+      "elevation": 2749,
+      "baseElevation": 1300,
+      "radiusX": 6000,
+      "radiusZ": 6000,
+      "colors": { "low": "#8a7a4a", "mid": "#5d6b3c", "high": "#7d7364" }
+    }
+  ],
+  "parks": [
+    { "name": "Kidepo Valley National Park", "lat": 3.9, "lon": 33.85, "side": "left" }
+  ],
+  "rivers": [
+    { "name": "Kidepo River", "schematic": true, "points": [[34.0117, 3.9012], [33.93, 4.1]] },
+    { "name": "Narus River", "schematic": true, "points": [[33.7697, 3.6703], [33.72, 3.85], [33.84, 4.02]] }
+  ],
+  "roads": [
+    ["Napak", "Moroto"],
+    ["Moroto", "Kotido"],
+    ["Kotido", "Kaabong"],
+    ["Moroto", "Nakapiripirit"],
+    ["Nakapiripirit", "Amudat"]
+  ]
+}

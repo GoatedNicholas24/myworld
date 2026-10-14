@@ -1,6 +1,7 @@
 import * as THREE from "three";
-import { loadWorld } from "./world.js";
+import { loadWorld, loadMap, loadOutline } from "./world.js";
 import { QUALITY, pickStartingQuality, nextQuality, isTouchDevice } from "./quality.js";
+import { createGeo } from "./geo.js";
 import { createTerrain } from "./terrain.js";
 import { createGround } from "./ground.js";
 import { createSky } from "./sky.js";
@@ -10,12 +11,15 @@ import { createProps } from "./props.js";
 import { createLightingUniforms, parseMood } from "./mood.js";
 import { createMoodController } from "./moodController.js";
 import { createControls } from "./controls.js";
+import { createMapView } from "./map.js";
 import "./style.css";
 
 // The engine's entry point. Everything about how the world looks comes from
-// worlds/karamoja/world.json. This file only wires the pieces together.
+// worlds/karamoja/world.json (and its map in map.json). This file only wires
+// the pieces together.
 
 const world = loadWorld("karamoja");
+const map = loadMap("karamoja");
 let quality = pickStartingQuality();
 
 const container = document.querySelector("#game");
@@ -56,6 +60,10 @@ const moodController = createMoodController(
   { scene, sunLight, ambientLight, lighting, sky: sky.uniforms, grass: grass.uniforms },
   startIndex,
 );
+
+// The map icon and screen. Game (0, 0) is the real start point from map.json.
+const geo = createGeo(map.start);
+createMapView({ map, outline: loadOutline("karamoja"), geo, camera, title: world.name });
 
 // ---- Quality and size -------------------------------------------------------
 
@@ -143,7 +151,7 @@ function frame(now) {
       `${world.name} · ${moodController.label()}\n` +
       `Quality: ${quality.name} · ${renderer.info.render.triangles.toLocaleString()} triangles · ${fps} fps\n` +
       `Drag = look · WASD = walk · Shift = faster\n` +
-      `1-4 = mood · Q = quality`;
+      `1-4 = mood · Q = quality · M = map`;
   }
 }
 
