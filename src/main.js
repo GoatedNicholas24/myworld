@@ -5,7 +5,7 @@ import { createGeo } from "./geo.js";
 import { createTerrain } from "./terrain.js";
 import { createGround } from "./ground.js";
 import { createSky } from "./sky.js";
-import { createHills } from "./hills.js";
+import { createMountains } from "./mountains.js";
 import { createGrass } from "./grass.js";
 import { createProps } from "./props.js";
 import { createLightingUniforms, parseMood } from "./mood.js";
@@ -38,20 +38,22 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 const sunLight = new THREE.DirectionalLight(0xffffff, 1);
 scene.add(ambientLight, sunLight);
 
-const camera = new THREE.PerspectiveCamera(world.camera.fov, 1, 0.2, 1500);
+// The far limit is large because the real mountains are kilometres away.
+const camera = new THREE.PerspectiveCamera(world.camera.fov, 1, 0.2, 30000);
 
 const lighting = createLightingUniforms();
 const terrain = createTerrain(world.terrain, world.seed, world.camera.start);
+const geo = createGeo(map.start);
 
 // The controls place the camera at the start, so they come before the world parts.
 const controls = createControls(camera, renderer.domElement, terrain, world.camera);
 
 const ground = createGround(world.terrain, terrain, world.seed, quality, camera);
 const sky = createSky(lighting);
-const hills = createHills(world.hills, lighting, world.seed);
+const mountains = createMountains(map, geo, lighting, world.seed, quality);
 const grass = createGrass(world.grass, world.wind, terrain, world.seed, lighting, quality, camera);
 const props = createProps(world.props, terrain, world.seed, quality, world.camera.start);
-scene.add(sky.mesh, hills.group, ground.group, grass.group, props.group);
+scene.add(sky.mesh, mountains.group, ground.group, grass.group, props.group);
 
 const moods = world.moods.map(parseMood);
 const startIndex = Math.max(0, moods.findIndex((m) => m.id === world.defaultMood));
@@ -62,7 +64,6 @@ const moodController = createMoodController(
 );
 
 // The map icon and screen. Game (0, 0) is the real start point from map.json.
-const geo = createGeo(map.start);
 createMapView({ map, outline: loadOutline("karamoja"), geo, camera, title: world.name });
 
 // ---- Quality and size -------------------------------------------------------
@@ -78,6 +79,7 @@ function applyQuality() {
   ground.setQuality(quality);
   grass.setQuality(quality);
   props.setQuality(quality);
+  mountains.setQuality(quality);
   resize();
 }
 
@@ -97,20 +99,22 @@ const totalTriangles = (q) =>
   ground.trianglesFor(q) +
   grass.trianglesFor(q) +
   sky.triangles +
-  hills.triangles +
+  mountains.trianglesFor(q) +
   props.trianglesFor(q);
 console.table({
   LOW: {
     ground: ground.trianglesFor(QUALITY.LOW),
     grass: grass.trianglesFor(QUALITY.LOW),
-    "sky+hills": sky.triangles + hills.triangles,
+    sky: sky.triangles,
+    "mountains (est.)": mountains.trianglesFor(QUALITY.LOW),
     "trees+rocks": props.trianglesFor(QUALITY.LOW),
     total: totalTriangles(QUALITY.LOW),
   },
   HIGH: {
     ground: ground.trianglesFor(QUALITY.HIGH),
     grass: grass.trianglesFor(QUALITY.HIGH),
-    "sky+hills": sky.triangles + hills.triangles,
+    sky: sky.triangles,
+    "mountains (est.)": mountains.trianglesFor(QUALITY.HIGH),
     "trees+rocks": props.trianglesFor(QUALITY.HIGH),
     total: totalTriangles(QUALITY.HIGH),
   },
@@ -137,7 +141,7 @@ function frame(now) {
   ground.update(camera);
   grass.update(elapsed, camera);
   props.update(camera);
-  hills.update(camera);
+  mountains.update(camera);
   sky.update(camera);
   renderer.render(scene, camera);
 

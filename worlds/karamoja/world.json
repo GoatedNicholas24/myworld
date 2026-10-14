@@ -37,14 +37,6 @@
     "waveLength": 22,
     "strength": 0.3
   },
-  "hills": {
-    "segments": 128,
-    "layers": [
-      { "distance": 520, "baseHeight": 18, "amplitude": 70, "frequency": 1.6, "tint": "#5c6046", "haze": 0.55 },
-      { "distance": 780, "baseHeight": 30, "amplitude": 110, "frequency": 2.0, "tint": "#6a6f5a", "haze": 0.72 },
-      { "distance": 1050, "baseHeight": 40, "amplitude": 150, "frequency": 2.4, "tint": "#7c8070", "haze": 0.86 }
-    ]
-  },
   "props": {
     "keepClearRadius": 16,
     "acacia": {
@@ -60,11 +52,6 @@
       "viewRadius": 150,
       "size": [0.12, 0.55],
       "colors": ["#6a5d4e", "#a89984"]
-    },
-    "village": {
-      "center": [-30, 20],
-      "homesteads": 4,
-      "householdRadius": 12.5
     }
   },
   "camera": {
@@ -72,9 +59,9 @@
     "eyeHeight": 1.25,
     "walkSpeed": 3,
     "runSpeed": 12,
-    "walkRadius": 600,
+    "walkRadius": 3000,
     "start": [0, 0],
-    "startBearing": 235
+    "startBearing": 90
   },
   "moods": [
     {

@@ -8,6 +8,7 @@ export const QUALITY = {
     bladeWidthScale: 1.6, // wider blades so fewer of them still look full
     groundSegments: 15, // ground detail per 60 m chunk (one point every 4 m)
     treeDetail: 0, // simplest tree shapes
+    landmarkSegments: 36, // mountain detail (grid squares per side)
   },
   HIGH: {
     name: "HIGH",
@@ -17,6 +18,7 @@ export const QUALITY = {
     bladeWidthScale: 1,
     groundSegments: 30, // one point every 2 m
     treeDetail: 1,
+    landmarkSegments: 64,
   },
 };
 
