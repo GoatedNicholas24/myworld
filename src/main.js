@@ -10,6 +10,10 @@ import { createMountains } from "./mountains.js";
 import { createGrass } from "./grass.js";
 import { createProps } from "./props.js";
 import { createHomesteads } from "./homesteads.js";
+import { createGarden } from "./garden.js";
+import { createWater } from "./water.js";
+import { createActors } from "./actors.js";
+import { createAirplane } from "./airplane.js";
 import { createLightingUniforms, parseMood } from "./mood.js";
 import { createMoodController } from "./moodController.js";
 import { createControls } from "./controls.js";
@@ -57,7 +61,22 @@ const mountains = createMountains(map, geo, lighting, world.seed, quality);
 const grass = createGrass(world.grass, world.wind, terrain, world.seed, lighting, quality, camera);
 const props = createProps(world.props, terrain, world.seed, quality, world.camera.start);
 const homesteads = createHomesteads(local, terrain, world.seed, quality);
-scene.add(sky.mesh, mountains.group, ground.group, grass.group, props.group, homesteads.group);
+const garden = createGarden(local, terrain, world.seed, quality);
+const water = createWater(local, terrain, lighting);
+const actors = createActors(local.actors, terrain);
+const airplane = createAirplane(local.airplane);
+scene.add(
+  sky.mesh,
+  mountains.group,
+  ground.group,
+  grass.group,
+  props.group,
+  homesteads.group,
+  garden.group,
+  water.group,
+  actors.group,
+  airplane.group,
+);
 
 const moods = world.moods.map(parseMood);
 const startIndex = Math.max(0, moods.findIndex((m) => m.id === world.defaultMood));
@@ -85,6 +104,7 @@ function applyQuality() {
   props.setQuality(quality);
   mountains.setQuality(quality);
   homesteads.setQuality(quality);
+  garden.setQuality(quality);
   resize();
 }
 
@@ -98,24 +118,21 @@ window.addEventListener("keydown", (event) => {
 resize();
 
 // Triangle counts for both presets, worked out from the settings.
-// (Trees and rocks are counted as they stand around the start position.)
+// (Grass is the most it could be; trees and rocks are counted around the start.
+// The animated models are not included here, the HUD count includes everything.)
 props.update(camera);
-const totalTriangles = (q) =>
-  ground.trianglesFor(q) +
-  grass.trianglesFor(q) +
-  sky.triangles +
-  mountains.trianglesFor(q) +
-  props.trianglesFor(q) +
-  homesteads.trianglesFor(q);
-const row = (q) => ({
-  ground: ground.trianglesFor(q),
-  grass: grass.trianglesFor(q),
-  sky: sky.triangles,
-  "mountains (est.)": mountains.trianglesFor(q),
-  "trees+rocks": props.trianglesFor(q),
-  homesteads: homesteads.trianglesFor(q),
-  total: totalTriangles(q),
-});
+const row = (q) => {
+  const parts = {
+    ground: ground.trianglesFor(q),
+    grass: grass.trianglesFor(q),
+    sky: sky.triangles,
+    "mountains (est.)": mountains.trianglesFor(q),
+    "trees+rocks": props.trianglesFor(q),
+    homesteads: homesteads.trianglesFor(q),
+    garden: garden.trianglesFor(q),
+  };
+  return { ...parts, total: Object.values(parts).reduce((sum, n) => sum + n, 0) };
+};
 console.table({ LOW: row(QUALITY.LOW), HIGH: row(QUALITY.HIGH) });
 
 // ---- Main loop --------------------------------------------------------------
@@ -140,6 +157,9 @@ function frame(now) {
   grass.update(elapsed, camera);
   props.update(camera);
   mountains.update(camera);
+  water.update(elapsed);
+  actors.update(delta);
+  airplane.update(delta, elapsed);
   sky.update(camera);
   renderer.render(scene, camera);
 

@@ -1,5 +1,5 @@
 {
-  "note": "Representative local features near the start, in metres (x = east, z = south). They are not surveyed places: move or add them freely, and correct anything that does not look right to you.",
+  "note": "Representative local features near the start, in metres (x = east, z = south). They are not surveyed places: move or add them freely.",
   "sandColor": "#cdb98a",
   "rivers": [
     {
@@ -9,10 +9,55 @@
       "points": [[-900, 480], [-500, 420], [-150, 360], [250, 410], [600, 330], [950, 380], [1400, 300]]
     }
   ],
+  "roads": [
+    { "name": "Dirt road", "width": 6, "points": [[-250, 70], [450, 70]] }
+  ],
+  "lakes": [
+    { "name": "Test lake", "x": 170, "z": -170, "radius": 45, "depth": 3.5 }
+  ],
+  "waterfalls": [
+    { "lake": 0, "angle": -0.785, "height": 12, "width": 6 }
+  ],
+  "fields": [
+    { "name": "Sorghum garden", "x": 60, "z": -75, "width": 28, "depth": 18, "rotation": 0.15 }
+  ],
   "homesteads": [
     { "x": 140, "z": -90, "radius": 14, "huts": 7, "granaries": 2, "kraal": true },
     { "x": 330, "z": 140, "radius": 12, "huts": 6, "granaries": 2, "kraal": true },
     { "x": -240, "z": -210, "radius": 15, "huts": 8, "granaries": 3, "kraal": true },
     { "x": 520, "z": -260, "radius": 12, "huts": 5, "granaries": 2, "kraal": true }
-  ]
+  ],
+  "actors": [
+    {
+      "name": "Fox",
+      "file": "Fox.glb",
+      "scale": 0.007,
+      "clip": "Walk",
+      "speed": 1.2,
+      "stepFps": 12,
+      "facing": 3.1416,
+      "path": { "type": "loop", "center": [100, 40], "radius": 18 }
+    },
+    {
+      "name": "Walking man",
+      "file": "CesiumMan.glb",
+      "scale": 1.16,
+      "clip": "",
+      "speed": 1.2,
+      "stepFps": 12,
+      "facing": -1.5708,
+      "path": { "type": "line", "from": [70, 5], "to": [170, 25] }
+    },
+    {
+      "name": "Milk truck",
+      "file": "CesiumMilkTruck.glb",
+      "fitSize": 5,
+      "clip": "Wheels",
+      "speed": 5,
+      "stepFps": 0,
+      "facing": 0,
+      "path": { "type": "line", "from": [-240, 70], "to": [440, 70] }
+    }
+  ],
+  "airplane": { "center": [100, -20], "radius": 250, "altitude": 90, "speed": 38 }
 }
