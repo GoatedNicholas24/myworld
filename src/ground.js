@@ -6,7 +6,8 @@ const clamp = (value, low, high) => Math.min(Math.max(value, low), high);
 
 // The ground is cut into square chunks. Only the chunks near the camera
 // exist, so the world can be as big as you like. Colours (earth tones, dry
-// patches, bare soil) are painted into the vertices, so no textures are needed.
+// patches, bare soil, river sand) are painted into the vertices, so no
+// textures are needed.
 export function createGround(settings, terrain, seed, quality, camera) {
   const chunkSize = settings.groundChunkSize;
   const loadRadius = settings.groundLoadRadius;
@@ -16,6 +17,7 @@ export function createGround(settings, terrain, seed, quality, camera) {
   const baseColor = new THREE.Color(settings.groundColor);
   const dryColor = new THREE.Color(settings.dryGroundColor);
   const soilColor = new THREE.Color(settings.soilColor);
+  const sandColor = new THREE.Color(terrain.sandColor ?? "#cdb98a");
   const color = new THREE.Color();
 
   let segments = quality.groundSegments;
@@ -52,6 +54,7 @@ export function createGround(settings, terrain, seed, quality, camera) {
         color.copy(baseColor).lerp(dryColor, dryness);
         color.multiplyScalar(0.94 + 0.12 * fbm(x * 0.8, z * 0.8, seed + 4, 2));
         color.lerp(soilColor, terrain.soilAt(x, z));
+        color.lerp(sandColor, terrain.sandAt(x, z));
         colors[i * 3] = color.r;
         colors[i * 3 + 1] = color.g;
         colors[i * 3 + 2] = color.b;

@@ -21,14 +21,15 @@
     "soilColor": "#9b5f3b",
     "soilPatchCellSize": 90,
     "soilPatchesPerCell": 1.4,
-    "soilPatchRadius": [4, 10]
+    "soilPatchRadius": [4, 10],
+    "grassCover": { "scale": 9, "minimum": 0.1 }
   },
   "grass": {
     "fieldRadius": 42,
     "chunkSize": 12,
-    "density": 7,
-    "bladeHeight": [0.35, 0.9],
-    "bladeWidth": 0.085,
+    "density": 9,
+    "bladeHeight": [0.14, 0.4],
+    "bladeWidth": 0.05,
     "lean": [0.1, 0.45]
   },
   "wind": {

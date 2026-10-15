@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { loadWorld, loadMap, loadOutline } from "./world.js";
+import { loadLocal } from "./local.js";
 import { QUALITY, pickStartingQuality, nextQuality, isTouchDevice } from "./quality.js";
 import { createGeo } from "./geo.js";
 import { createTerrain } from "./terrain.js";
@@ -8,6 +9,7 @@ import { createSky } from "./sky.js";
 import { createMountains } from "./mountains.js";
 import { createGrass } from "./grass.js";
 import { createProps } from "./props.js";
+import { createHomesteads } from "./homesteads.js";
 import { createLightingUniforms, parseMood } from "./mood.js";
 import { createMoodController } from "./moodController.js";
 import { createControls } from "./controls.js";
@@ -15,11 +17,12 @@ import { createMapView } from "./map.js";
 import "./style.css";
 
 // The engine's entry point. Everything about how the world looks comes from
-// worlds/karamoja/world.json (and its map in map.json). This file only wires
+// worlds/karamoja/ (world.json, map.json, local.json). This file only wires
 // the pieces together.
 
 const world = loadWorld("karamoja");
 const map = loadMap("karamoja");
+const local = loadLocal("karamoja");
 let quality = pickStartingQuality();
 
 const container = document.querySelector("#game");
@@ -42,7 +45,7 @@ scene.add(ambientLight, sunLight);
 const camera = new THREE.PerspectiveCamera(world.camera.fov, 1, 0.2, 30000);
 
 const lighting = createLightingUniforms();
-const terrain = createTerrain(world.terrain, world.seed, world.camera.start);
+const terrain = createTerrain(world.terrain, world.seed, world.camera.start, local);
 const geo = createGeo(map.start);
 
 // The controls place the camera at the start, so they come before the world parts.
@@ -53,7 +56,8 @@ const sky = createSky(lighting);
 const mountains = createMountains(map, geo, lighting, world.seed, quality);
 const grass = createGrass(world.grass, world.wind, terrain, world.seed, lighting, quality, camera);
 const props = createProps(world.props, terrain, world.seed, quality, world.camera.start);
-scene.add(sky.mesh, mountains.group, ground.group, grass.group, props.group);
+const homesteads = createHomesteads(local, terrain, world.seed, quality);
+scene.add(sky.mesh, mountains.group, ground.group, grass.group, props.group, homesteads.group);
 
 const moods = world.moods.map(parseMood);
 const startIndex = Math.max(0, moods.findIndex((m) => m.id === world.defaultMood));
@@ -80,6 +84,7 @@ function applyQuality() {
   grass.setQuality(quality);
   props.setQuality(quality);
   mountains.setQuality(quality);
+  homesteads.setQuality(quality);
   resize();
 }
 
@@ -100,25 +105,18 @@ const totalTriangles = (q) =>
   grass.trianglesFor(q) +
   sky.triangles +
   mountains.trianglesFor(q) +
-  props.trianglesFor(q);
-console.table({
-  LOW: {
-    ground: ground.trianglesFor(QUALITY.LOW),
-    grass: grass.trianglesFor(QUALITY.LOW),
-    sky: sky.triangles,
-    "mountains (est.)": mountains.trianglesFor(QUALITY.LOW),
-    "trees+rocks": props.trianglesFor(QUALITY.LOW),
-    total: totalTriangles(QUALITY.LOW),
-  },
-  HIGH: {
-    ground: ground.trianglesFor(QUALITY.HIGH),
-    grass: grass.trianglesFor(QUALITY.HIGH),
-    sky: sky.triangles,
-    "mountains (est.)": mountains.trianglesFor(QUALITY.HIGH),
-    "trees+rocks": props.trianglesFor(QUALITY.HIGH),
-    total: totalTriangles(QUALITY.HIGH),
-  },
+  props.trianglesFor(q) +
+  homesteads.trianglesFor(q);
+const row = (q) => ({
+  ground: ground.trianglesFor(q),
+  grass: grass.trianglesFor(q),
+  sky: sky.triangles,
+  "mountains (est.)": mountains.trianglesFor(q),
+  "trees+rocks": props.trianglesFor(q),
+  homesteads: homesteads.trianglesFor(q),
+  total: totalTriangles(q),
 });
+console.table({ LOW: row(QUALITY.LOW), HIGH: row(QUALITY.HIGH) });
 
 // ---- Main loop --------------------------------------------------------------
 

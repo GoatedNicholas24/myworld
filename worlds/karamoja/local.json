@@ -1,0 +1,18 @@
+{
+  "note": "Representative local features near the start, in metres (x = east, z = south). They are not surveyed places: move or add them freely, and correct anything that does not look right to you.",
+  "sandColor": "#cdb98a",
+  "rivers": [
+    {
+      "name": "Seasonal sand river",
+      "width": 40,
+      "depth": 1.4,
+      "points": [[-900, 480], [-500, 420], [-150, 360], [250, 410], [600, 330], [950, 380], [1400, 300]]
+    }
+  ],
+  "homesteads": [
+    { "x": 140, "z": -90, "radius": 14, "huts": 7, "granaries": 2, "kraal": true },
+    { "x": 330, "z": 140, "radius": 12, "huts": 6, "granaries": 2, "kraal": true },
+    { "x": -240, "z": -210, "radius": 15, "huts": 8, "granaries": 3, "kraal": true },
+    { "x": 520, "z": -260, "radius": 12, "huts": 5, "granaries": 2, "kraal": true }
+  ]
+}

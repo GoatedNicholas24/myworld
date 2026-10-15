@@ -203,15 +203,16 @@ export function createGrass(settings, wind, terrain, seed, lighting, quality, ca
       const x = x0 + random() * chunkSize;
       const z = z0 + random() * chunkSize;
 
-      // No grass on bare soil patches.
-      if (random() < terrain.soilAt(x, z) * 1.15) continue;
+      // Grass grows in patches, thins out, and never grows on bare soil.
+      const cover = terrain.grassCoverAt(x, z) * (1 - Math.min(1, terrain.soilAt(x, z) * 1.15));
+      if (random() > cover) continue;
 
       // Taller and shorter clumps across the land.
       const clump = 0.7 + 0.6 * fbm(x / 7 + 40, z / 7 + 40, seed + 6, 2);
       const height = lerp(minHeight, maxHeight, random()) * clump;
       const width = settings.bladeWidth * current.bladeWidthScale * (0.8 + 0.5 * random());
 
-      position.set(x, terrain.heightAt(x, z) - 0.03, z);
+      position.set(x, terrain.heightAt(x, z) - 0.02, z);
       rotation.setFromAxisAngle(up, random() * TAU);
       scale.set(width, height, height);
       matrix.compose(position, rotation, scale);
@@ -283,6 +284,7 @@ export function createGrass(settings, wind, terrain, seed, lighting, quality, ca
       uniforms.uCameraPos.value.copy(cam.position);
       manager.update(cam.position.x, cam.position.z);
     },
+    // The most blades there could be; the real number is lower where grass is thin.
     trianglesFor: (q) => chunkCount * bladesPerChunk(q) * trianglesPerBlade(q),
   };
 }
