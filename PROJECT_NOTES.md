@@ -66,6 +66,15 @@ git commit -m "your message"
 git push origin master
 ```
 
+## Working with several AI tools
+
+The repo is the shared memory. Claude, ChatGPT, Gemini and GitHub Copilot all work from the same files.
+
+- Big picture: `docs/VISION.md`
+- Who does what and how to hand over work: `docs/AI_WORKFLOW.md`
+- One small task at a time: `docs/tasks/` (copy `_TEMPLATE.md`)
+- Give each AI only this file, the vision, one ticket and the source files that ticket names.
+
 ## Representation
 
 Portray Karamoja and its people with dignity and specificity, with no caricature.
