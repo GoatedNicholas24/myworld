@@ -92,3 +92,38 @@
 
 **Next step**
 - Add layered distant hills (simple silhouettes in code) fading into the fog, to give the horizon depth and a more Firewatch-like look.
+
+## 2026-10-15: Kampala Road kit (Blender)
+
+**What was built**
+- `tools/blender/kampala_road.py`: a Blender script that builds a modular "Kampala Road" kit in an Entergalactic-style look (flat saturated colours, chunky shapes, thick ink outlines when rendered). Nothing in the game itself changed.
+- 6 buildings: coral arcade (4 floors), violet tower (6), teal shops (3), mustard block (5), pink low-rise (2), cream colonial (3). Each has a covered veranda with columns, shop fronts, invented shop-sign colours (no real brands), windows, floor bands, a roof cornice, a water tank and a stair-head.
+- 2 street pieces, each 20 m long: a plain road segment and a zebra-crossing segment. Road, kerbs, pavements that run under the verandas, yellow edge lines and a dashed centre line.
+- A 60 m preview layout (3 street pieces and 12 buildings, 6 on each side) with a dusk-gradient sky and a street-level hero camera. This preview is for checking the look only.
+- Every piece is a single mesh centred on the origin, facing +X (buildings) or running along Y (streets). Buildings are 8 to 14 m wide. All pieces share 21 flat-colour materials and have no textures, so the game can re-skin them with `toToon` from `src/toon.js`.
+
+**What works**
+- Built and rendered in Blender 5.2 with no errors. The hero render shows the street with outlines and the dusk sky.
+- All 8 pieces export to GLB (about 246 KB in total). They have not been put in the repo or loaded into the game yet.
+
+**Triangle counts** (counted in Blender)
+- Coral arcade 652, violet tower 762, teal shops 562, mustard block 652, pink low-rise 262, cream colonial 512.
+- Road segment 110, crossing 170.
+- Whole 60 m preview street: 7,194.
+
+**Known problems**
+- Not tested in the game or on a phone yet.
+- The ink outlines in the renders come from Blender's Freestyle, so they do not export. They need to be recreated in the game (see next step).
+- The sides of the buildings are plain apart from windows, so each one needs a neighbour or a wall beside it.
+- Roofs are one flat colour with only a few props on them.
+
+**Files changed**
+- New: `tools/blender/kampala_road.py`
+- Changed: `DEVLOG.md`
+
+**Commit messages**
+- Blender kit: modular Kampala Road buildings and street pieces in an Entergalactic style
+- Devlog for 2026-10-15
+
+**Next step**
+- Export the 8 pieces to `public/models/kampala-road/`, load them in the game as a short street and add cheap ink outlines (a slightly bigger black copy drawn behind each building), switched off on LOW.
