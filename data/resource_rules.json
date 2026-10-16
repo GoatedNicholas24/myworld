@@ -278,7 +278,8 @@
         }
       ],
       "density_per_km2": 8,
-      "min_spacing_m": 45
+      "min_spacing_m": 45,
+      "review": true
     }
   ]
 }
