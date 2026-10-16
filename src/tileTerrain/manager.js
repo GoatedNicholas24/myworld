@@ -77,10 +77,10 @@ export async function createTileTerrain({ THREE, world, quality }) {
     return cache.key(i, j, lod);
   }
 
-  function neighbourFor(i, j, lod) {
+  function neighbourFor(i, j, _lod) {
     if (i < 0 || j < 0 || i >= CHUNKS_PER_SIDE || j >= CHUNKS_PER_SIDE) return null;
-    const record = active.get(activeKey(i, j));
-    return record && record.lod === lod ? record : null;
+    // Neighbours at a different LOD still provide edge heights for normals.
+    return active.get(activeKey(i, j)) ?? null;
   }
 
   function refreshLocalNormals(record) {
