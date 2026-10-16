@@ -26,9 +26,15 @@ Claude creates these under public/terrain/great_lakes/; do not hand-create gener
 
 Each map has exactly 2001 × 2001 samples. Raw binary files have no header unless a future explicitly versioned format says otherwise. Claude's script also creates biome_u8.bin and one density_<resource_id>_u8.bin per resource.
 
+### Tile format
+
+T003 and T004 must follow this format. Under `public/terrain/great_lakes/tiles/`, store each chunk and LOD in `lod_<quads>/chunk_<i>_<j>/height_u16.bin` and `lod_<quads>/chunk_<i>_<j>/biome_u8.bin`, where `<quads>` is `64`, `32`, `16` or `8`, and `i` and `j` are zero-based chunk coordinates. Each height file contains uint16 little-endian heights using the same encoding as `heightmap_u16.bin`; each file has (`quads` + 1) × (`quads` + 1) samples, row-major, with row 0 north. Heights are bilinearly resampled from the master heightmap. The matching biome file contains a uint8 biome grid with the same sample dimensions and orientation. Neighbouring chunks share their edge samples. Different LODs are joined using skirts handled by the loader.
+
+Chunk `(i, j)` covers master samples `25i` through `25i + 25` inclusive in each direction: 250 m = 25 cells, 26 samples per edge, 80 × 80 chunks, and 2001 samples = 2000 cells.
+
 ### Rule JSON contract
 
-Claude reads data/biomes.json and data/resource_rules.json. Each condition has exactly map, min, max and fade. Allowed maps: elevation_m, slope, wetness, rock, river_dist_m and noise:<name>. Seeded noise maps are stable values from 0 to 1. Rule slope is normalized so 0 is flat and 1 is 45 degrees; raw slope storage remains degrees × 255/90.
+Claude reads data/biomes.json and data/resource_rules.json. Each condition has exactly map, min, max and fade. Allowed maps: elevation_m, slope, wetness, rock, river_dist_m and noise:<name>. Seeded noise maps are stable values from 0 to 1. Rule slope = rise over run, so 0 is flat and 1 is 45 degrees; raw slope storage remains degrees × 255/90. The fade value is measured in each map's own units.
 
 A condition has weight 1 inside min..max, fading smoothly to 0 over fade distance outside the interval. A rule's weight is the product of its condition weights. For biomes, highest weight × priority wins; use a deterministic tie-break. Resource density is guided by rule weight and density_per_km2; enforce min_spacing_m. Every resource ID must exist in data/resources.json.
 
