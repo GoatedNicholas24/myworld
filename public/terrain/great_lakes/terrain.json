@@ -1,0 +1,341 @@
+{
+  "name": "Great Lakes region (representative)",
+  "version": 1,
+  "seed": 7,
+  "size_m": 20000,
+  "samples": [
+    2001,
+    2001
+  ],
+  "cell_m": 10,
+  "chunk_m": 250,
+  "chunks": [
+    80,
+    80
+  ],
+  "axes": "x east, y north, z up; row 0 north, column 0 west; row-major little-endian",
+  "elevation": {
+    "file": "heightmap_u16.bin",
+    "type": "uint16",
+    "formula": "900 + value / 65535 * 4400",
+    "unit": "m"
+  },
+  "maps": {
+    "slope": {
+      "file": "slope_u8.bin",
+      "type": "uint8",
+      "meaning": "slope angle in degrees = value * 90 / 255"
+    },
+    "wetness": {
+      "file": "wetness_u8.bin",
+      "type": "uint8",
+      "meaning": "value / 255"
+    },
+    "rock": {
+      "file": "rock_u8.bin",
+      "type": "uint8",
+      "meaning": "value / 255"
+    },
+    "river_dist": {
+      "file": "river_dist_u16.bin",
+      "type": "uint16",
+      "meaning": "metres to nearest river bank, capped at 2000"
+    },
+    "biome": {
+      "file": "biome_u8.bin",
+      "type": "uint8",
+      "meaning": "index into biomes[]"
+    }
+  },
+  "biomes": [
+    {
+      "index": 0,
+      "id": "snow_rock_peaks",
+      "name": "Snow and Rock Peaks",
+      "paint": "#e5e6e4",
+      "share": 0.0143
+    },
+    {
+      "index": 1,
+      "id": "alpine_moorland",
+      "name": "Alpine Moorland",
+      "paint": "#9a9a73",
+      "share": 0.0629
+    },
+    {
+      "index": 2,
+      "id": "highland_forest",
+      "name": "Highland Forest",
+      "paint": "#426c4b",
+      "share": 0.1684
+    },
+    {
+      "index": 3,
+      "id": "forest_plateau",
+      "name": "Forest Plateau",
+      "paint": "#557c4d",
+      "share": 0.033
+    },
+    {
+      "index": 4,
+      "id": "woodland",
+      "name": "Woodland",
+      "paint": "#7c8a4d",
+      "share": 0.2104
+    },
+    {
+      "index": 5,
+      "id": "savannah_grassland",
+      "name": "Savannah Grassland",
+      "paint": "#c1a65e",
+      "share": 0.3319
+    },
+    {
+      "index": 6,
+      "id": "farmland_valley",
+      "name": "Farmland Valley",
+      "paint": "#a9a75b",
+      "share": 0.0971
+    },
+    {
+      "index": 7,
+      "id": "wetland_river_bank",
+      "name": "Wetland and River Bank",
+      "paint": "#648d78",
+      "share": 0.0215
+    },
+    {
+      "index": 8,
+      "id": "rift_escarpment_cliffs",
+      "name": "Rift Escarpment Cliffs",
+      "paint": "#8a7165",
+      "share": 0.0433
+    },
+    {
+      "index": 9,
+      "id": "scrub_slopes",
+      "name": "Scrub Slopes",
+      "paint": "#827d5b",
+      "share": 0.0173
+    }
+  ],
+  "resource_density": {
+    "stone": {
+      "file": "density_stone_u8.bin",
+      "type": "uint8",
+      "meaning": "rule weight 0..1 = value / 255; expected objects per km2 = weight * density_per_km2",
+      "density_per_km2": 85,
+      "min_spacing_m": 12
+    },
+    "clay": {
+      "file": "density_clay_u8.bin",
+      "type": "uint8",
+      "meaning": "rule weight 0..1 = value / 255; expected objects per km2 = weight * density_per_km2",
+      "density_per_km2": 35,
+      "min_spacing_m": 25
+    },
+    "red_earth": {
+      "file": "density_red_earth_u8.bin",
+      "type": "uint8",
+      "meaning": "rule weight 0..1 = value / 255; expected objects per km2 = weight * density_per_km2",
+      "density_per_km2": 60,
+      "min_spacing_m": 18
+    },
+    "sand": {
+      "file": "density_sand_u8.bin",
+      "type": "uint8",
+      "meaning": "rule weight 0..1 = value / 255; expected objects per km2 = weight * density_per_km2",
+      "density_per_km2": 24,
+      "min_spacing_m": 35
+    },
+    "hardwood_timber": {
+      "file": "density_hardwood_timber_u8.bin",
+      "type": "uint8",
+      "meaning": "rule weight 0..1 = value / 255; expected objects per km2 = weight * density_per_km2",
+      "density_per_km2": 28,
+      "min_spacing_m": 18
+    },
+    "thatch_grass": {
+      "file": "density_thatch_grass_u8.bin",
+      "type": "uint8",
+      "meaning": "rule weight 0..1 = value / 255; expected objects per km2 = weight * density_per_km2",
+      "density_per_km2": 180,
+      "min_spacing_m": 4
+    },
+    "papyrus": {
+      "file": "density_papyrus_u8.bin",
+      "type": "uint8",
+      "meaning": "rule weight 0..1 = value / 255; expected objects per km2 = weight * density_per_km2",
+      "density_per_km2": 45,
+      "min_spacing_m": 8
+    },
+    "bamboo": {
+      "file": "density_bamboo_u8.bin",
+      "type": "uint8",
+      "meaning": "rule weight 0..1 = value / 255; expected objects per km2 = weight * density_per_km2",
+      "density_per_km2": 12,
+      "min_spacing_m": 20
+    },
+    "fibre_plants": {
+      "file": "density_fibre_plants_u8.bin",
+      "type": "uint8",
+      "meaning": "rule weight 0..1 = value / 255; expected objects per km2 = weight * density_per_km2",
+      "density_per_km2": 75,
+      "min_spacing_m": 7
+    },
+    "firewood": {
+      "file": "density_firewood_u8.bin",
+      "type": "uint8",
+      "meaning": "rule weight 0..1 = value / 255; expected objects per km2 = weight * density_per_km2",
+      "density_per_km2": 90,
+      "min_spacing_m": 6
+    },
+    "ironstone": {
+      "file": "density_ironstone_u8.bin",
+      "type": "uint8",
+      "meaning": "rule weight 0..1 = value / 255; expected objects per km2 = weight * density_per_km2",
+      "density_per_km2": 8,
+      "min_spacing_m": 45,
+      "review": true
+    }
+  },
+  "stats": {
+    "elevation_m": [
+      930.0114442664225,
+      5200.028992141603
+    ],
+    "slope_deg_max": 76.72483825683594,
+    "river_cells_pct": 0.06018979515739381,
+    "wetness_mean": 0.32862555980682373,
+    "rock_mean": 0.13799044489860535
+  },
+  "landmarks": [
+    {
+      "name": "Mount Rwenzori-like Range",
+      "x_km": 10,
+      "y_km_from_north": 3,
+      "design_range_m": [
+        3000,
+        5200
+      ],
+      "mean_m": 4304,
+      "min_m": 3153,
+      "max_m": 5200
+    },
+    {
+      "name": "Northern Highlands",
+      "x_km": 4,
+      "y_km_from_north": 4,
+      "design_range_m": [
+        1800,
+        2800
+      ],
+      "mean_m": 2400,
+      "min_m": 2128,
+      "max_m": 2634
+    },
+    {
+      "name": "Eastern Highlands",
+      "x_km": 17,
+      "y_km_from_north": 6,
+      "design_range_m": [
+        1600,
+        2600
+      ],
+      "mean_m": 2336,
+      "min_m": 1966,
+      "max_m": 2612
+    },
+    {
+      "name": "Western Plateau",
+      "x_km": 3,
+      "y_km_from_north": 10,
+      "design_range_m": [
+        1500,
+        2400
+      ],
+      "mean_m": 1763,
+      "min_m": 1556,
+      "max_m": 1935
+    },
+    {
+      "name": "Central Valley",
+      "x_km": 10,
+      "y_km_from_north": 10,
+      "design_range_m": [
+        1000,
+        1500
+      ],
+      "mean_m": 1229,
+      "min_m": 1128,
+      "max_m": 1441
+    },
+    {
+      "name": "Rift Escarpment",
+      "x_km": 17,
+      "y_km_from_north": 11,
+      "design_range_m": [
+        1200,
+        2200
+      ],
+      "mean_m": 2158,
+      "min_m": 1737,
+      "max_m": 2422
+    },
+    {
+      "name": "Savannah Plains",
+      "x_km": 5,
+      "y_km_from_north": 17,
+      "design_range_m": [
+        900,
+        1400
+      ],
+      "mean_m": 1007,
+      "min_m": 930,
+      "max_m": 1218
+    },
+    {
+      "name": "Southern Hills",
+      "x_km": 9,
+      "y_km_from_north": 16,
+      "design_range_m": [
+        1000,
+        1800
+      ],
+      "mean_m": 1346,
+      "min_m": 1132,
+      "max_m": 1435
+    },
+    {
+      "name": "Forest Plateau",
+      "x_km": 15,
+      "y_km_from_north": 18,
+      "design_range_m": [
+        1400,
+        2200
+      ],
+      "mean_m": 1734,
+      "min_m": 1587,
+      "max_m": 2122
+    }
+  ],
+  "sha256_16": {
+    "biome_u8.bin": "26265db55bd11851",
+    "density_bamboo_u8.bin": "8bb985ee071783a1",
+    "density_clay_u8.bin": "c4774b2633999da2",
+    "density_fibre_plants_u8.bin": "5a98847f1b25ccd5",
+    "density_firewood_u8.bin": "cf78fa37a8e091da",
+    "density_hardwood_timber_u8.bin": "c5daf6d9d48e0024",
+    "density_ironstone_u8.bin": "6bea19654af3ffef",
+    "density_papyrus_u8.bin": "b5e9e61697b3320f",
+    "density_red_earth_u8.bin": "514d95450552ac29",
+    "density_sand_u8.bin": "d8ca25f795436c62",
+    "density_stone_u8.bin": "be2775bc61b7ce13",
+    "density_thatch_grass_u8.bin": "e481239fa318c7df",
+    "heightmap_u16.bin": "b15e1363e0571b18",
+    "river_dist_u16.bin": "d835afd9b7b30904",
+    "rock_u8.bin": "9caa03559bbdcf0b",
+    "slope_u8.bin": "8e0481915a02c22d",
+    "wetness_u8.bin": "413fdf47c9143ee2"
+  }
+}

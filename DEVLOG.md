@@ -1,5 +1,27 @@
 # Dev Log
 
+## 2026-10-16: Terrain master maps (generator)
+
+**What was built**
+- `tools/terrain/` generates the 2001 x 2001 master heightmap (10 m cells) for the 20 km Great Lakes region: landmark-driven landforms, stream-power erosion, flow-routed rivers, then slope, wetness, rock and river-distance maps.
+- Applies ChatGPT's `data/biomes.json` and `data/resource_rules.json` to produce `biome_u8.bin` and one density map per resource, plus `terrain.json`.
+- About 70 seconds on a normal CPU, byte-identical for the same seed.
+
+**Numbers**
+- Elevation 930-5200 m; all nine landmark means inside their design ranges.
+- Biome shares: savannah 33%, woodland 21%, highland forest 17%, farmland 10%, alpine moorland 6%, cliffs 4%, forest plateau 3%, wetland 2%, snow/rock 1.4%, scrub 1.7%.
+- 76 MB of maps, kept out of git; regenerate with `python3 tools/terrain/generate.py`.
+
+**Known problems**
+- No lakes yet (a later layer). Smallest streams missing. One faint straight scarp near x = 6.5 km.
+
+**Files changed**
+- New: `tools/terrain/*`, `public/terrain/great_lakes/terrain.json`
+- Changed: `.gitignore` (removed the stray `data/` rule that would have hidden new data files; added generated maps)
+
+**Next step**
+- T004 (tiler, Copilot) reads these maps and cuts the 250 m chunks.
+
 ## 2026-10-14 (session 3): First village
 
 **What was built**

@@ -1,4 +1,9 @@
 node_modules
 dist
 .env
-data/
+
+# large generated terrain maps: regenerate with `python3 tools/terrain/generate.py`
+# (terrain.json stays in git; the game ships the tiles made from these in T004)
+public/terrain/great_lakes/*.bin
+public/terrain/great_lakes/preview/
+__pycache__/
