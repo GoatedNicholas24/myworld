@@ -198,7 +198,7 @@ export function createTileMesh(THREE, tile, paintColors, material, neighbourFor)
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   geometry.setAttribute("normal", new THREE.BufferAttribute(normals, 3));
   geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-  geometry.setIndex(new Uint16Array(indices));
+  geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
   geometry.userData.skirtPairs = skirtPairs;
   const mesh = new THREE.Mesh(geometry, material);
   const record = { i, j, lod: quads, tile, mesh, triangles: indices.length / 3 };
@@ -260,7 +260,7 @@ export function createFarMesh(THREE, heights, biomes, paintColors, material, sam
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-  geometry.setIndex(indices);
+  geometry.setIndex(new THREE.BufferAttribute(indices, 1));
   geometry.computeVertexNormals();
   const mesh = new THREE.Mesh(geometry, material);
   mesh.frustumCulled = false;
