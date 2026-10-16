@@ -1,4 +1,4 @@
-import { CHUNK_CELLS, GRID_SAMPLES } from "./maps.mjs";
+import { CHUNK_CELLS, FAR_SAMPLES, GRID_SAMPLES } from "./maps.mjs";
 
 /*
  * A chunk spans exactly 25 master cells. Represent a sample position as the
