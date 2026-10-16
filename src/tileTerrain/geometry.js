@@ -67,37 +67,60 @@ export function updateTileNormals(THREE, record, neighbourFor, paintColors) {
       // Using the smaller spacing on both sides gives matching central-difference
       // normals where LOD vertices coincide. Without a loaded neighbour, use a
       // one-sided difference rather than sampling unrelated far-view data.
-      const westStep = westRecord ? Math.min(spacing, CHUNK_METRES / westRecord.lod) : spacing;
-      const eastStep = eastRecord ? Math.min(spacing, CHUNK_METRES / eastRecord.lod) : spacing;
-      const northStep = northRecord ? Math.min(spacing, CHUNK_METRES / northRecord.lod) : spacing;
-      const southStep = southRecord ? Math.min(spacing, CHUNK_METRES / southRecord.lod) : spacing;
-
       let hWest;
-      if (col > 0) hWest = decodeElevation(rawFromTileAtWorld(record, x - spacing, z));
-      else if (westRecord) hWest = decodeElevation(rawFromTileAtWorld(westRecord, x - westStep, z));
-      else hWest = currentHeight;
-
       let hEast;
-      if (col < quads) hEast = decodeElevation(rawFromTileAtWorld(record, x + spacing, z));
-      else if (eastRecord) hEast = decodeElevation(rawFromTileAtWorld(eastRecord, x + eastStep, z));
-      else hEast = currentHeight;
+      let dxDistance;
+      if (col === 0 && westRecord) {
+        const step = Math.min(spacing, CHUNK_METRES / westRecord.lod);
+        hWest = decodeElevation(rawFromTileAtWorld(westRecord, x - step, z));
+        hEast = decodeElevation(rawFromTileAtWorld(record, x + step, z));
+        dxDistance = 2 * step;
+      } else if (col === quads && eastRecord) {
+        const step = Math.min(spacing, CHUNK_METRES / eastRecord.lod);
+        hWest = decodeElevation(rawFromTileAtWorld(record, x - step, z));
+        hEast = decodeElevation(rawFromTileAtWorld(eastRecord, x + step, z));
+        dxDistance = 2 * step;
+      } else if (col === 0) {
+        hWest = currentHeight;
+        hEast = decodeElevation(rawFromTileAtWorld(record, x + spacing, z));
+        dxDistance = spacing;
+      } else if (col === quads) {
+        hWest = decodeElevation(rawFromTileAtWorld(record, x - spacing, z));
+        hEast = currentHeight;
+        dxDistance = spacing;
+      } else {
+        hWest = decodeElevation(rawFromTileAtWorld(record, x - spacing, z));
+        hEast = decodeElevation(rawFromTileAtWorld(record, x + spacing, z));
+        dxDistance = 2 * spacing;
+      }
 
       let hNorth;
-      if (row > 0) hNorth = decodeElevation(rawFromTileAtWorld(record, x, z - spacing));
-      else if (northRecord) hNorth = decodeElevation(rawFromTileAtWorld(northRecord, x, z - northStep));
-      else hNorth = currentHeight;
-
       let hSouth;
-      if (row < quads) hSouth = decodeElevation(rawFromTileAtWorld(record, x, z + spacing));
-      else if (southRecord) hSouth = decodeElevation(rawFromTileAtWorld(southRecord, x, z + southStep));
-      else hSouth = currentHeight;
+      let dzDistance;
+      if (row === 0 && northRecord) {
+        const step = Math.min(spacing, CHUNK_METRES / northRecord.lod);
+        hNorth = decodeElevation(rawFromTileAtWorld(northRecord, x, z - step));
+        hSouth = decodeElevation(rawFromTileAtWorld(record, x, z + step));
+        dzDistance = 2 * step;
+      } else if (row === quads && southRecord) {
+        const step = Math.min(spacing, CHUNK_METRES / southRecord.lod);
+        hNorth = decodeElevation(rawFromTileAtWorld(record, x, z - step));
+        hSouth = decodeElevation(rawFromTileAtWorld(southRecord, x, z + step));
+        dzDistance = 2 * step;
+      } else if (row === 0) {
+        hNorth = currentHeight;
+        hSouth = decodeElevation(rawFromTileAtWorld(record, x, z + spacing));
+        dzDistance = spacing;
+      } else if (row === quads) {
+        hNorth = decodeElevation(rawFromTileAtWorld(record, x, z - spacing));
+        hSouth = currentHeight;
+        dzDistance = spacing;
+      } else {
+        hNorth = decodeElevation(rawFromTileAtWorld(record, x, z - spacing));
+        hSouth = decodeElevation(rawFromTileAtWorld(record, x, z + spacing));
+        dzDistance = 2 * spacing;
+      }
 
-      const dxDistance = (col === 0 && !westRecord) || (col === quads && !eastRecord)
-        ? spacing
-        : (col === 0 ? westStep + spacing : col === quads ? spacing + eastStep : spacing * 2);
-      const dzDistance = (row === 0 && !northRecord) || (row === quads && !southRecord)
-        ? spacing
-        : (row === 0 ? northStep + spacing : row === quads ? spacing + southStep : spacing * 2);
       const dhdx = (hEast - hWest) / dxDistance;
       const dhdz = (hSouth - hNorth) / dzDistance;
       const nx = -dhdx;
