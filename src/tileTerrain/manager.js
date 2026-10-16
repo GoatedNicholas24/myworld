@@ -100,6 +100,14 @@ export async function createTileTerrain({ THREE, world, quality }) {
     group.remove(record.mesh);
     record.mesh.geometry.dispose();
     active.delete(activeKey(record.i, record.j));
+    for (const neighbour of [
+      neighbourFor(record.i - 1, record.j, record.lod),
+      neighbourFor(record.i + 1, record.j, record.lod),
+      neighbourFor(record.i, record.j - 1, record.lod),
+      neighbourFor(record.i, record.j + 1, record.lod),
+    ]) {
+      if (neighbour) updateTileNormals(THREE, neighbour, neighbourFor, paintColors);
+    }
     statsDirty = true;
   }
 
@@ -231,7 +239,6 @@ export async function createTileTerrain({ THREE, world, quality }) {
     lastPlanZ = camera.position.z;
     forcePlan = false;
     pumpFetches();
-    statsDirty = true;
   }
 
   function worldToCandidateChunks(value) {
@@ -329,6 +336,7 @@ export async function createTileTerrain({ THREE, world, quality }) {
 
   replaceFarMesh();
   printStats();
+  statsDirty = false;
 
   return {
     group,
