@@ -27,7 +27,7 @@ import { startGreatLakesWorld } from "./tileTerrain/start.js";
 
 const requestedWorld = new URLSearchParams(window.location.search).get("world") || "karamoja";
 if (requestedWorld === "great_lakes") {
-  startGreatLakesWorld().catch((error) => {
+  startGreatLakesWorld(loadWorld(requestedWorld)).catch((error) => {
     console.error("Great Lakes terrain failed to start:", error);
     const hud = document.querySelector("#hud");
     if (hud) hud.textContent = "Great Lakes terrain failed to load: " + error.message;
