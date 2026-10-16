@@ -1,0 +1,68 @@
+{
+  "stone": {
+    "name": "Stone",
+    "stack": 20,
+    "gatherFrom": "rock_outcrop",
+    "tool": null
+  },
+  "clay": {
+    "name": "Clay",
+    "stack": 20,
+    "gatherFrom": "clay_bank",
+    "tool": null
+  },
+  "red_earth": {
+    "name": "Red earth",
+    "stack": 20,
+    "gatherFrom": "soil_patch",
+    "tool": null
+  },
+  "sand": {
+    "name": "Sand",
+    "stack": 20,
+    "gatherFrom": "river_bank",
+    "tool": null
+  },
+  "hardwood_timber": {
+    "name": "Hardwood timber",
+    "stack": 20,
+    "gatherFrom": "tree",
+    "tool": null
+  },
+  "thatch_grass": {
+    "name": "Thatch grass",
+    "stack": 30,
+    "gatherFrom": "grass_patch",
+    "tool": null
+  },
+  "papyrus": {
+    "name": "Papyrus",
+    "stack": 20,
+    "gatherFrom": "wetland_plant",
+    "tool": null
+  },
+  "bamboo": {
+    "name": "Bamboo",
+    "stack": 20,
+    "gatherFrom": "bamboo_clump",
+    "tool": null
+  },
+  "fibre_plants": {
+    "name": "Fibre plants",
+    "stack": 30,
+    "gatherFrom": "wild_plant",
+    "tool": null
+  },
+  "firewood": {
+    "name": "Firewood",
+    "stack": 30,
+    "gatherFrom": "fallen_wood",
+    "tool": null
+  },
+  "ironstone": {
+    "name": "Ironstone",
+    "stack": 10,
+    "gatherFrom": "rock_outcrop",
+    "tool": null
+  }
+}
