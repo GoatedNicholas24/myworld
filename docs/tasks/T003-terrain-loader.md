@@ -22,7 +22,7 @@ Connect generated Great Lakes maps to Three.js terrain while keeping Karamoja wo
 - worlds/karamoja/world.json is the existing manifest and must continue working.
 
 ## Interface
-20,000 m square; 2001 × 2001 samples at 10 m; 80 × 80 chunks of 250 m. Axes x east, y north, z up. Row-major, little-endian, row 0 north and column 0 west. Height = 900 + uint16 / 65535 × 4400 m. LODs: 64, 32, 16, 8 quads per side and a cheap whole-world far mesh. Coordinate output format with T004; do not invent a competing format. Do not install Rapier in this ticket.
+20,000 m square; 2001 × 2001 samples at 10 m; 80 × 80 chunks of 250 m. Axes x east, y north, z up. Row-major, little-endian, row 0 north and column 0 west. Height = 900 + uint16 / 65535 × 4400 m. LODs: 64, 32, 16, 8 quads per side and a cheap whole-world far mesh. Follow the Tile format section of docs/TERRAIN_PIPELINE.md; do not invent a competing format. Do not install Rapier in this ticket.
 
 ## Rules
 Plain JavaScript ES modules. Keep Karamoja working. Do not edit files outside the agreed list. Report terrain triangle counts.
