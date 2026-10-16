@@ -10,8 +10,8 @@ import { createTileTerrain } from "./manager.js";
 // Game coordinates follow the existing engine: +x is east, -z is north, and
 // Three.js y is elevation. Master row 0 (north) maps to z=-10000; column 0
 // (west) maps to x=-10000. Thus the centre start is x=0,z=0 and faces north.
-export async function startGreatLakesWorld() {
-  const world = loadWorld("great_lakes");
+export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
+  if (world.terrain?.source !== "tiles") throw new Error(`World "${world.id}" does not select the tile terrain source`);
   let quality = pickStartingQuality();
   const container = document.querySelector("#game");
   const hud = document.querySelector("#hud");
