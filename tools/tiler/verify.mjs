@@ -150,7 +150,7 @@ async function checkLod(maps, quads) {
 
 async function listFiles(dir) {
   const results = [];
-  const entries = (await readdir(dir, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name));
+  const entries = (await readdir(dir, { withFileTypes: true })).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
   for (const entry of entries) {
     const fullPath = join(dir, entry.name);
     if (entry.isDirectory()) results.push(...await listFiles(fullPath));
@@ -161,7 +161,7 @@ async function listFiles(dir) {
 
 async function hashSortedFileList(files) {
   const hash = createHash("sha256");
-  const sorted = [...files].sort((a, b) => relative(tileRoot, a).localeCompare(relative(tileRoot, b)));
+  const sorted = [...files].sort((a, b) => { const left = relative(tileRoot, a); const right = relative(tileRoot, b); return left < right ? -1 : left > right ? 1 : 0; });
   for (const file of sorted) {
     const rel = relative(tileRoot, file).split("\\").join("/");
     const contents = await readFile(file);
