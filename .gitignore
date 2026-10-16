@@ -7,3 +7,4 @@ dist
 public/terrain/great_lakes/*.bin
 public/terrain/great_lakes/preview/
 __pycache__/
+public/terrain/great_lakes/tiles/
