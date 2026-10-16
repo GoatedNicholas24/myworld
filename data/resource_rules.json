@@ -1,0 +1,284 @@
+{
+  "resources": [
+    {
+      "id": "stone",
+      "name": "Stone",
+      "conditions": [
+        {
+          "map": "rock",
+          "min": 0.45,
+          "max": 1,
+          "fade": 0.25
+        },
+        {
+          "map": "slope",
+          "min": 0.05,
+          "max": 1,
+          "fade": 0.15
+        }
+      ],
+      "density_per_km2": 85,
+      "min_spacing_m": 12
+    },
+    {
+      "id": "clay",
+      "name": "Clay",
+      "conditions": [
+        {
+          "map": "wetness",
+          "min": 0.45,
+          "max": 0.9,
+          "fade": 0.2
+        },
+        {
+          "map": "slope",
+          "min": 0,
+          "max": 0.25,
+          "fade": 0.1
+        },
+        {
+          "map": "river_dist_m",
+          "min": 80,
+          "max": 900,
+          "fade": 120
+        }
+      ],
+      "density_per_km2": 35,
+      "min_spacing_m": 25
+    },
+    {
+      "id": "red_earth",
+      "name": "Red Earth",
+      "conditions": [
+        {
+          "map": "elevation_m",
+          "min": 930,
+          "max": 2100,
+          "fade": 250
+        },
+        {
+          "map": "wetness",
+          "min": 0.1,
+          "max": 0.6,
+          "fade": 0.2
+        },
+        {
+          "map": "rock",
+          "min": 0,
+          "max": 0.5,
+          "fade": 0.2
+        }
+      ],
+      "density_per_km2": 60,
+      "min_spacing_m": 18
+    },
+    {
+      "id": "sand",
+      "name": "Sand",
+      "conditions": [
+        {
+          "map": "river_dist_m",
+          "min": 0,
+          "max": 60,
+          "fade": 40
+        },
+        {
+          "map": "slope",
+          "min": 0,
+          "max": 0.2,
+          "fade": 0.08
+        }
+      ],
+      "density_per_km2": 24,
+      "min_spacing_m": 35
+    },
+    {
+      "id": "hardwood_timber",
+      "name": "Hardwood Timber",
+      "conditions": [
+        {
+          "map": "wetness",
+          "min": 0.5,
+          "max": 1,
+          "fade": 0.2
+        },
+        {
+          "map": "elevation_m",
+          "min": 1000,
+          "max": 2600,
+          "fade": 350
+        },
+        {
+          "map": "slope",
+          "min": 0,
+          "max": 0.65,
+          "fade": 0.15
+        },
+        {
+          "map": "noise:tree_cover",
+          "min": 0.45,
+          "max": 1,
+          "fade": 0.25
+        }
+      ],
+      "density_per_km2": 28,
+      "min_spacing_m": 18
+    },
+    {
+      "id": "thatch_grass",
+      "name": "Thatch Grass",
+      "conditions": [
+        {
+          "map": "wetness",
+          "min": 0.2,
+          "max": 0.7,
+          "fade": 0.2
+        },
+        {
+          "map": "elevation_m",
+          "min": 930,
+          "max": 2200,
+          "fade": 250
+        },
+        {
+          "map": "slope",
+          "min": 0,
+          "max": 0.35,
+          "fade": 0.1
+        }
+      ],
+      "density_per_km2": 180,
+      "min_spacing_m": 4
+    },
+    {
+      "id": "papyrus",
+      "name": "Papyrus",
+      "conditions": [
+        {
+          "map": "wetness",
+          "min": 0.78,
+          "max": 1,
+          "fade": 0.12
+        },
+        {
+          "map": "river_dist_m",
+          "min": 0,
+          "max": 120,
+          "fade": 60
+        },
+        {
+          "map": "elevation_m",
+          "min": 930,
+          "max": 1800,
+          "fade": 200
+        }
+      ],
+      "density_per_km2": 45,
+      "min_spacing_m": 8
+    },
+    {
+      "id": "bamboo",
+      "name": "Bamboo",
+      "conditions": [
+        {
+          "map": "wetness",
+          "min": 0.55,
+          "max": 1,
+          "fade": 0.2
+        },
+        {
+          "map": "elevation_m",
+          "min": 1200,
+          "max": 3000,
+          "fade": 300
+        },
+        {
+          "map": "noise:bamboo_suitability",
+          "min": 0.65,
+          "max": 1,
+          "fade": 0.2
+        }
+      ],
+      "density_per_km2": 12,
+      "min_spacing_m": 20
+    },
+    {
+      "id": "fibre_plants",
+      "name": "Fibre Plants",
+      "conditions": [
+        {
+          "map": "wetness",
+          "min": 0.25,
+          "max": 0.75,
+          "fade": 0.2
+        },
+        {
+          "map": "elevation_m",
+          "min": 930,
+          "max": 2100,
+          "fade": 250
+        },
+        {
+          "map": "noise:fibre_suitability",
+          "min": 0.35,
+          "max": 1,
+          "fade": 0.2
+        }
+      ],
+      "density_per_km2": 75,
+      "min_spacing_m": 7
+    },
+    {
+      "id": "firewood",
+      "name": "Firewood",
+      "conditions": [
+        {
+          "map": "wetness",
+          "min": 0.15,
+          "max": 0.7,
+          "fade": 0.2
+        },
+        {
+          "map": "elevation_m",
+          "min": 930,
+          "max": 2500,
+          "fade": 300
+        },
+        {
+          "map": "noise:woody_cover",
+          "min": 0.3,
+          "max": 1,
+          "fade": 0.2
+        }
+      ],
+      "density_per_km2": 90,
+      "min_spacing_m": 6
+    },
+    {
+      "id": "ironstone",
+      "name": "Ironstone",
+      "conditions": [
+        {
+          "map": "rock",
+          "min": 0.55,
+          "max": 1,
+          "fade": 0.2
+        },
+        {
+          "map": "slope",
+          "min": 0.08,
+          "max": 1,
+          "fade": 0.15
+        },
+        {
+          "map": "noise:ironstone_potential",
+          "min": 0.65,
+          "max": 1,
+          "fade": 0.2
+        }
+      ],
+      "density_per_km2": 8,
+      "min_spacing_m": 45
+    }
+  ]
+}
