@@ -4,7 +4,7 @@ import { CHUNKS_PER_SIDE, FAR_SAMPLES, LODS } from "./maps.mjs";
 import { buildChunkBuffers, buildFarBuffers } from "./sampling.mjs";
 
 function jsonBytes(value) {
-  return Buffer.from(`${JSON.stringify(value, null, 2)}\\n`, "utf8");
+  return Buffer.from(`${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
 
 const DENSITY_SAMPLES = 401;
@@ -94,7 +94,7 @@ function createIndex(binaryFileCount, binaryBytes, perLod, farBytes, auxiliaryFi
     if (nextSize === indexBytes) break;
     indexBytes = nextSize;
   }
-  index.totals.bytes = binaryBytes + indexBytes;
+  index.totals.bytes = binaryBytes + auxiliaryBytes + indexBytes;
   const serialized = jsonBytes(index);
   index.totals.bytes = binaryBytes + auxiliaryBytes + serialized.byteLength;
   const finalSerialized = jsonBytes(index);
@@ -185,7 +185,7 @@ export async function writeTiles(outputDir, maps) {
     if (next === indexBytes) break;
     indexBytes = next;
   }
-  index.totals.bytes = binary.bytes + indexBytes;
+  index.totals.bytes = binary.bytes + densityIndexBuffer.byteLength + indexBytes;
   const finalIndexBuffer = jsonBytes(index);
   if (finalIndexBuffer.byteLength !== indexBytes) {
     index.totals.bytes = binary.bytes + densityIndexBuffer.byteLength + finalIndexBuffer.byteLength;
