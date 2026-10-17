@@ -86,8 +86,9 @@ export function createControls(camera, element, terrain, settings, options = {})
       camera.position.z += (-cos * f - sin * s) * speed * delta;
     }
     if (flying) {
-      if (keys.has("Space")) camera.position.y += 150 * delta;
-      if (keys.has("ControlLeft") || keys.has("ControlRight")) camera.position.y -= 150 * delta;
+      const verticalSpeed = keys.has("ShiftLeft") || keys.has("ShiftRight") ? 600 : 150;
+      if (keys.has("Space")) camera.position.y += verticalSpeed * delta;
+      if (keys.has("ControlLeft") || keys.has("ControlRight")) camera.position.y -= verticalSpeed * delta;
     } else {
       const distance = Math.hypot(camera.position.x, camera.position.z);
       if (distance > settings.walkRadius) {
