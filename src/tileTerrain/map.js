@@ -144,7 +144,7 @@ export function createGreatLakesMapView({ camera, metadata, farHeights, farBiome
     }
     ctx.save();
     ctx.translate(x, z);
-    ctx.rotate(camera.rotation.y);
+    ctx.rotate(-camera.rotation.y);
     ctx.fillStyle = "#d23d2e";
     ctx.strokeStyle = "#fff5dc";
     ctx.lineWidth = Math.max(1, size / 180);
