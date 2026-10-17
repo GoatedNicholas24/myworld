@@ -32,7 +32,7 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
   const tileWorld = await createTileTerrain({ THREE, world, quality });
   let resourceSystem = null;
   try {
-    resourceSystem = await createResourceSystem({ THREE, tileRoot: world.terrain.tileRoot, worldSeed: world.seed, terrain: tileWorld.terrain });
+    resourceSystem = await createResourceSystem({ THREE, tileRoot: world.terrain.tileRoot, worldSeed: world.seed, terrain: tileWorld.terrain, cacheLimit: quality.resourceChunkCacheLimit });
   } catch (error) {
     console.error("Great Lakes resource density data unavailable:", error.message);
   }
