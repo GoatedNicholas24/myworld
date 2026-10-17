@@ -105,7 +105,7 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
       hud.textContent =
         `${world.name} · ${moodController.label()}\n` +
         `Quality: ${quality.name} · ${renderer.info.render.triangles.toLocaleString("en-US")} triangles · ${fps} fps\n` +
-        `Vegetation: ${livingGround.getVegetationTriangleCount().toLocaleString("en-US")} tris · gatherables: ${livingGround.resourcesNear(camera.position.x, camera.position.z, quality.resourceRadius).length} nearby\n` +
+        `Vegetation: ${livingGround.getVegetationTriangleCount().toLocaleString("en-US")} tris · gatherables loaded: ${livingGround.getResourceNodeCount()}\n` +
         `Drag = look · WASD = walk · Shift = faster\n` +
         `1-4 = mood · Q = quality`;
     }
