@@ -180,6 +180,7 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
   let resourceTriangles = 0;
   let statsDirty = true;
   const dummy = new THREE.Object3D();
+  const tempColor = new THREE.Color();
 
   function sharedGeometry(kind, level) {
     const key = `${kind}:${level}`;
@@ -328,9 +329,8 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
         dummy.scale.set(width * plant.scale, height * plant.scale, width * plant.scale);
         dummy.updateMatrix();
         mesh.setMatrixAt(index, dummy.matrix);
-        const color = new THREE.Color(plant.color);
-        color.multiplyScalar(0.9 + plant.priority * 0.2);
-        mesh.setColorAt(index, color);
+        tempColor.set(plant.color).multiplyScalar(0.9 + plant.priority * 0.2);
+        mesh.setColorAt(index, tempColor);
       }
       mesh.instanceMatrix.needsUpdate = true;
       if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
@@ -338,7 +338,7 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
       group.add(mesh);
     }
 
-    const resourceResult = resourceSystem?.createChunkMeshes(tile.i, tile.j) ?? { group: new THREE.Group(), triangles: 0, nodes: [] };
+    const resourceResult = resourceSystem?.createChunkMeshes(tile.i, tile.j, camera, quality.resourceRadius) ?? { group: new THREE.Group(), triangles: 0, nodes: [] };
     group.add(resourceResult.group);
     return {
       key: `${tile.i},${tile.j}`,
