@@ -6,6 +6,8 @@ import { createLightingUniforms, parseMood } from "../mood.js";
 import { createMoodController } from "../moodController.js";
 import { createControls } from "../controls.js";
 import { createTileTerrain } from "./manager.js";
+import { createResourceSystem } from "./resources.js";
+import { createVegetationSystem } from "./vegetation.js";
 
 // Game coordinates follow the existing engine: +x is east, -z is north, and
 // Three.js y is elevation. Master row 0 (north) maps to z=-10000; column 0
@@ -28,9 +30,20 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
   const camera = new THREE.PerspectiveCamera(world.camera.fov, 1, 0.2, 30000);
   const lighting = createLightingUniforms();
   const tileWorld = await createTileTerrain({ THREE, world, quality });
+  let resourceSystem = null;
+  try {
+    resourceSystem = await createResourceSystem({ THREE, tileRoot: world.terrain.tileRoot, worldSeed: world.seed, terrain: tileWorld.terrain });
+  } catch (error) {
+    console.error("Great Lakes resource density data unavailable:", error.message);
+  }
+  const livingGround = createVegetationSystem({ THREE, terrain: tileWorld.terrain, metadata: tileWorld.mapData.metadata, worldSeed: world.seed, initialQuality: quality, resourceSystem });
+  console.table({
+    LOW: { startPoint: livingGround.estimateTriangleCountAt(0, 0, QUALITY.LOW), densestForest: livingGround.estimateTriangleCountForBiome("highland_forest", QUALITY.LOW) },
+    HIGH: { startPoint: livingGround.estimateTriangleCountAt(0, 0, QUALITY.HIGH), densestForest: livingGround.estimateTriangleCountForBiome("highland_forest", QUALITY.HIGH) },
+  });
   const controls = createControls(camera, renderer.domElement, tileWorld.terrain, world.camera);
   const sky = createSky(lighting);
-  scene.add(sky.mesh, tileWorld.group);
+  scene.add(sky.mesh, tileWorld.group, livingGround.group);
 
   const moods = world.moods.map(parseMood);
   const startIndex = Math.max(0, moods.findIndex((mood) => mood.id === world.defaultMood));
@@ -49,6 +62,7 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
 
   function applyQuality() {
     tileWorld.setQuality(quality);
+    livingGround.setQuality(quality);
     resize();
   }
 
@@ -77,7 +91,8 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
 
     controls.update(delta);
     moodController.update(delta);
-    tileWorld.update(camera);
+    const terrainBuilds = tileWorld.update(camera);
+    livingGround.update(camera, tileWorld.getActiveChunks(), Math.max(0, 2 - terrainBuilds));
     sky.update(camera);
     renderer.render(scene, camera);
 
@@ -90,6 +105,7 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
       hud.textContent =
         `${world.name} · ${moodController.label()}\n` +
         `Quality: ${quality.name} · ${renderer.info.render.triangles.toLocaleString("en-US")} triangles · ${fps} fps\n` +
+        `Vegetation: ${livingGround.getVegetationTriangleCount().toLocaleString("en-US")} tris · gatherables: ${livingGround.resourcesNear(camera.position.x, camera.position.z, quality.resourceRadius).length} nearby\n` +
         `Drag = look · WASD = walk · Shift = faster\n` +
         `1-4 = mood · Q = quality`;
     }
