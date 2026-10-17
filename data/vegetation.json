@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "units": {
+    "density": "instances per hectare",
+    "height": "metres",
+    "scale": "unitless"
+  },
+  "biomes": {
+    "snow_rock_peaks": {
+      "vegetation": []
+    },
+    "alpine_moorland": {
+      "vegetation": [
+        { "kind": "moorland_tussock", "per_hectare": 180, "min_height": 0.35, "max_height": 0.9, "min_scale": 0.7, "max_scale": 1.4, "colors": ["#7f8860", "#9a9a73", "#a6a27a"] },
+        { "kind": "giant_lobelia", "per_hectare": 7, "min_height": 1.0, "max_height": 2.2, "min_scale": 0.8, "max_scale": 1.25, "colors": ["#71866b", "#8da07b"] }
+      ]
+    },
+    "highland_forest": {
+      "vegetation": [
+        { "kind": "tall_forest_tree", "per_hectare": 65, "min_height": 8, "max_height": 17, "min_scale": 0.8, "max_scale": 1.25, "colors": ["#315d43", "#426c4b", "#527b54"] },
+        { "kind": "broadleaf", "per_hectare": 22, "min_height": 5, "max_height": 11, "min_scale": 0.75, "max_scale": 1.3, "colors": ["#3d6947", "#557c4d", "#638557"] },
+        { "kind": "shrub", "per_hectare": 100, "min_height": 0.7, "max_height": 2.0, "min_scale": 0.65, "max_scale": 1.35, "colors": ["#426744", "#58794a", "#6b8753"] },
+        { "kind": "grass_tuft", "per_hectare": 160, "min_height": 0.25, "max_height": 0.7, "min_scale": 0.6, "max_scale": 1.25, "colors": ["#55764b", "#729056"] }
+      ]
+    },
+    "forest_plateau": {
+      "vegetation": [
+        { "kind": "broadleaf", "per_hectare": 34, "min_height": 5, "max_height": 12, "min_scale": 0.8, "max_scale": 1.3, "colors": ["#416d47", "#557c4d", "#658852"] },
+        { "kind": "tall_forest_tree", "per_hectare": 20, "min_height": 7, "max_height": 15, "min_scale": 0.75, "max_scale": 1.2, "colors": ["#315d43", "#426c4b"] },
+        { "kind": "shrub", "per_hectare": 75, "min_height": 0.6, "max_height": 1.8, "min_scale": 0.65, "max_scale": 1.35, "colors": ["#486f47", "#65804b"] },
+        { "kind": "grass_tuft", "per_hectare": 200, "min_height": 0.25, "max_height": 0.65, "min_scale": 0.6, "max_scale": 1.2, "colors": ["#63834e", "#819657"] }
+      ]
+    },
+    "woodland": {
+      "vegetation": [
+        { "kind": "acacia", "per_hectare": 13, "min_height": 3.5, "max_height": 7.5, "min_scale": 0.75, "max_scale": 1.3, "colors": ["#7c8548", "#939257", "#a59a5b"] },
+        { "kind": "broadleaf", "per_hectare": 8, "min_height": 3.5, "max_height": 7, "min_scale": 0.7, "max_scale": 1.25, "colors": ["#6e8149", "#7c8a4d", "#8b9652"] },
+        { "kind": "shrub", "per_hectare": 45, "min_height": 0.5, "max_height": 1.6, "min_scale": 0.6, "max_scale": 1.3, "colors": ["#727e48", "#899253"] },
+        { "kind": "grass_tuft", "per_hectare": 330, "min_height": 0.2, "max_height": 0.65, "min_scale": 0.65, "max_scale": 1.4, "colors": ["#9a9854", "#b1a65c", "#c1ad65"] }
+      ]
+    },
+    "savannah_grassland": {
+      "vegetation": [
+        { "kind": "acacia", "per_hectare": 6, "min_height": 3.5, "max_height": 7, "min_scale": 0.75, "max_scale": 1.3, "colors": ["#8b8749", "#a29a56", "#b0a15b"] },
+        { "kind": "shrub", "per_hectare": 22, "min_height": 0.45, "max_height": 1.4, "min_scale": 0.6, "max_scale": 1.35, "colors": ["#8c8748", "#a19952"] },
+        { "kind": "grass_tuft", "per_hectare": 520, "min_height": 0.25, "max_height": 0.85, "min_scale": 0.65, "max_scale": 1.5, "colors": ["#a18f4e", "#b6a45b", "#c2b36b"] }
+      ]
+    },
+    "farmland_valley": {
+      "vegetation": [
+        { "kind": "acacia", "per_hectare": 2, "min_height": 3.0, "max_height": 6.5, "min_scale": 0.8, "max_scale": 1.25, "colors": ["#7e8447", "#999452"] },
+        { "kind": "broadleaf", "per_hectare": 1.5, "min_height": 3.5, "max_height": 7, "min_scale": 0.8, "max_scale": 1.2, "colors": ["#687e49", "#7f8c4e"] },
+        { "kind": "grass_tuft", "per_hectare": 140, "min_height": 0.2, "max_height": 0.55, "min_scale": 0.6, "max_scale": 1.1, "coverage": 0.42, "colors": ["#9b9654", "#b0a45b", "#c0b36b"] }
+      ]
+    },
+    "wetland_river_bank": {
+      "vegetation": [
+        { "kind": "papyrus_reed", "per_hectare": 240, "min_height": 1.0, "max_height": 2.8, "min_scale": 0.75, "max_scale": 1.4, "colors": ["#557d67", "#648d78", "#7b9b78"] },
+        { "kind": "grass_tuft", "per_hectare": 220, "min_height": 0.25, "max_height": 0.7, "min_scale": 0.6, "max_scale": 1.2, "colors": ["#6d8d6d", "#8ba078"] },
+        { "kind": "shrub", "per_hectare": 18, "min_height": 0.5, "max_height": 1.5, "min_scale": 0.65, "max_scale": 1.2, "colors": ["#527a61", "#66856a"] }
+      ]
+    },
+    "rift_escarpment_cliffs": {
+      "vegetation": [
+        { "kind": "shrub", "per_hectare": 38, "min_height": 0.5, "max_height": 1.6, "min_scale": 0.7, "max_scale": 1.35, "colors": ["#7d7555", "#91815d"] },
+        { "kind": "moorland_tussock", "per_hectare": 65, "min_height": 0.3, "max_height": 0.8, "min_scale": 0.65, "max_scale": 1.2, "colors": ["#7c7955", "#9a9063"] }
+      ]
+    },
+    "scrub_slopes": {
+      "vegetation": [
+        { "kind": "shrub", "per_hectare": 65, "min_height": 0.5, "max_height": 1.8, "min_scale": 0.65, "max_scale": 1.35, "colors": ["#6e754d", "#827d5b", "#928660"] },
+        { "kind": "moorland_tussock", "per_hectare": 150, "min_height": 0.25, "max_height": 0.75, "min_scale": 0.65, "max_scale": 1.3, "colors": ["#7f8055", "#99905e"] }
+      ]
+    }
+  }
+}
