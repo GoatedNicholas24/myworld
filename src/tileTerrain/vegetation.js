@@ -472,6 +472,7 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
     getTriangleCount: () => vegetationTriangles + resourceTriangles,
     getVegetationTriangleCount: () => vegetationTriangles,
     getResourceTriangleCount: () => resourceTriangles,
+    getResourceNodeCount: () => [...records.values()].reduce((sum, record) => sum + record.nodes.length, 0),
     estimateTriangleCountAt,
     estimateTriangleCountForBiome,
     dispose() {
