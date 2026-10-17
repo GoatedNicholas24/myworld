@@ -6,6 +6,8 @@ import { createLightingUniforms, parseMood } from "../mood.js";
 import { createMoodController } from "../moodController.js";
 import { createControls } from "../controls.js";
 import { createTileTerrain } from "./manager.js";
+import { createGreatLakesMapView } from "./map.js";
+import { createScaleMarkers } from "./markers.js";
 
 // Game coordinates follow the existing engine: +x is east, -z is north, and
 // Three.js y is elevation. Master row 0 (north) maps to z=-10000; column 0
@@ -28,7 +30,23 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
   const camera = new THREE.PerspectiveCamera(world.camera.fov, 1, 0.2, 30000);
   const lighting = createLightingUniforms();
   const tileWorld = await createTileTerrain({ THREE, world, quality });
-  const controls = createControls(camera, renderer.domElement, tileWorld.terrain, world.camera);
+  const markers = createScaleMarkers(THREE, scene, tileWorld.terrain);
+  const landmarks = [
+    ["Rwenzori-like Range", 10, 3], ["Northern Highlands", 4, 4], ["Eastern Highlands", 17, 6],
+    ["Western Plateau", 3, 10], ["Central Valley", 10, 10], ["Rift Escarpment", 17, 11],
+    ["Savannah Plains", 5, 17], ["Southern Hills", 9, 16], ["Forest Plateau", 15, 18],
+  ].map(([name, eastKm, southKm]) => ({
+    name, x: eastKm * 1000 - 10000, z: southKm * 1000 - 10000,
+  }));
+  let flightStatus = "walking";
+  const controls = createControls(camera, renderer.domElement, tileWorld.terrain, world.camera, {
+    landmarks,
+    allowFlight: true,
+    onFlightChange: (flying) => { flightStatus = flying ? "FLIGHT" : "walking"; },
+    onPlaceMarker: () => markers.place(camera),
+    onRemoveMarkers: () => markers.clear(),
+  });
+  const mapView = createGreatLakesMapView({ camera, ...tileWorld.mapData });
   const sky = createSky(lighting);
   scene.add(sky.mesh, tileWorld.group);
 
@@ -38,6 +56,7 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
     moods,
     { scene, sunLight, ambientLight, lighting, sky: sky.uniforms },
     startIndex,
+    ["F1", "F2", "F3", "F4"],
   );
 
   function resize() {
@@ -78,6 +97,7 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
     controls.update(delta);
     moodController.update(delta);
     tileWorld.update(camera);
+    mapView.update();
     sky.update(camera);
     renderer.render(scene, camera);
 
