@@ -2,7 +2,6 @@ const WORLD_HALF = 10000;
 const CHUNK_METRES = 250;
 const CELLS_PER_CHUNK = 5;
 const DENSITY_SAMPLES = 401;
-const MAX_CACHED_CHUNKS = 96;
 const RESOURCE_COLORS = {
   stone: "#777a77",
   clay: "#a96f53",
@@ -73,7 +72,7 @@ function makeResourceGeometry(THREE, id) {
   }
 }
 
-export async function createResourceSystem({ THREE, tileRoot, worldSeed, terrain }) {
+export async function createResourceSystem({ THREE, tileRoot, worldSeed, terrain, cacheLimit = 96 }) {
   const indexUrl = `${tileRoot.replace(/\/$/, "")}/density/index.json`;
   const indexResponse = await fetch(indexUrl);
   if (!indexResponse.ok) throw new Error(`Missing compact resource maps. Run the terrain generator and tiler first (${indexUrl}).`);
@@ -110,6 +109,7 @@ export async function createResourceSystem({ THREE, tileRoot, worldSeed, terrain
   }));
 
   const nodeCache = new Map();
+  let activeCacheLimit = Math.max(8, cacheLimit);
   const dummy = new THREE.Object3D();
 
   function rawCandidatesForChunk(i, j, id) {
@@ -183,7 +183,7 @@ export async function createResourceSystem({ THREE, tileRoot, worldSeed, terrain
       }
     }
     nodeCache.set(key, nodes);
-    while (nodeCache.size > MAX_CACHED_CHUNKS) nodeCache.delete(nodeCache.keys().next().value);
+    while (nodeCache.size > activeCacheLimit) nodeCache.delete(nodeCache.keys().next().value);
     return nodes;
   }
 
@@ -242,6 +242,10 @@ export async function createResourceSystem({ THREE, tileRoot, worldSeed, terrain
     createChunkMeshes,
     getChunkNodes,
     resourcesNear,
+    setCacheLimit(nextLimit) {
+      activeCacheLimit = Math.max(8, nextLimit);
+      while (nodeCache.size > activeCacheLimit) nodeCache.delete(nodeCache.keys().next().value);
+    },
     dispose() {
       for (const geometry of geometries.values()) geometry.dispose();
       for (const material of materials.values()) material.dispose();
