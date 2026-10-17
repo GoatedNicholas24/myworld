@@ -187,7 +187,7 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
   }
 
   function sharedMaterial(kind, level) {
-    const key = `${kind}:${level}`;
+    const key = `${kind}:${level}:${quality.vegetationRadius}`;
     if (!materials.has(key)) materials.set(key, makeFadeMaterial(THREE, level, quality.vegetationRadius));
     return materials.get(key);
   }
@@ -371,8 +371,8 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
         const z = -WORLD_HALF + (j + 0.5) * CHUNK_METRES;
         const distance = Math.hypot(x - camera.position.x, z - camera.position.z);
         if (distance <= radius + CHUNK_METRES * 0.72) {
-          const tile = availableTiles.get(`${i},${j}`);
-          if (tile) desired.set(`${i},${j}`, { tile, distance });
+          const activeRecord = availableTiles.get(`${i},${j}`);
+          if (activeRecord?.tile) desired.set(`${i},${j}`, { tile: activeRecord.tile, distance });
         }
       }
     }
@@ -441,8 +441,4 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
       resourceSystem?.dispose();
     },
   };
-}
-
-function decodeElevation(raw) {
-  return 900 + (raw / 65535) * 4400;
 }
