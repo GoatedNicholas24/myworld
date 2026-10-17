@@ -1,4 +1,5 @@
 import vegetationData from "../../data/vegetation.json";
+import { QUALITY } from "../quality.js";
 
 const WORLD_HALF = 10000;
 const WORLD_SIZE = 20000;
@@ -178,6 +179,7 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
   let lastRebuildZ = NaN;
   let vegetationTriangles = 0;
   let resourceTriangles = 0;
+  let statsDirty = true;
   const dummy = new THREE.Object3D();
 
   function sharedGeometry(kind, level) {
@@ -197,6 +199,7 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
     vegetationTriangles -= record.vegetationTriangles;
     resourceTriangles -= record.resourceTriangles;
     records.delete(record.key);
+    statsDirty = true;
   }
 
   function getSample(tile, x, z) {
@@ -411,12 +414,48 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
       detailGroup.add(next.group);
       vegetationTriangles += next.vegetationTriangles;
       resourceTriangles += next.resourceTriangles;
+      statsDirty = true;
       built += 1;
+    }
+    if (statsDirty) {
+      console.log(`living ground: ${records.size} chunks, ${vegetationTriangles.toLocaleString("en-US")} vegetation tris, ${resourceTriangles.toLocaleString("en-US")} resource tris`);
+      statsDirty = false;
     }
     return built;
   }
 
   const detailGroup = new THREE.Group();
+
+  function estimateTriangleCountForBiome(biomeId, preset) {
+    const rules = biomeConfig[biomeId]?.vegetation ?? [];
+    const radius = preset.vegetationRadius;
+    const area = (r0, r1) => Math.PI * Math.max(0, Math.min(radius, r1) ** 2 - Math.min(radius, r0) ** 2) / 10000;
+    const bands = [
+      { area: area(0, 60), levels: ["near"] },
+      { area: area(60, 100), levels: ["near", "simple"] },
+      { area: area(100, 220), levels: ["simple"] },
+      { area: area(220, 280), levels: ["simple", "card"] },
+      { area: area(280, radius), levels: ["card"] },
+    ];
+    let triangles = 0;
+    for (const rule of rules) {
+      for (const band of bands) {
+        const count = rule.per_hectare * band.area * (rule.coverage ?? 1) * (preset.vegetationDensityScale ?? 1);
+        for (const level of band.levels) {
+          const geometry = makeGeometry(THREE, rule.kind, level);
+          triangles += count * (geometry.index ? geometry.index.count / 3 : geometry.attributes.position.count / 3);
+          geometry.dispose();
+        }
+      }
+    }
+    return Math.round(Math.min(triangles, preset.vegetationTriangleBudget));
+  }
+
+  function estimateTriangleCountAt(x, z, preset) {
+    const biomeName = terrain.biomeAt?.(x, z);
+    const biomeId = biomesByIndex.find((biome) => biome.name === biomeName)?.id ?? "savannah_grassland";
+    return estimateTriangleCountForBiome(biomeId, preset);
+  }
 
   function setQuality(nextQuality) {
     quality = nextQuality;
@@ -434,6 +473,8 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
     getTriangleCount: () => vegetationTriangles + resourceTriangles,
     getVegetationTriangleCount: () => vegetationTriangles,
     getResourceTriangleCount: () => resourceTriangles,
+    estimateTriangleCountAt,
+    estimateTriangleCountForBiome,
     dispose() {
       for (const record of [...records.values()]) disposeRecord(record);
       for (const geometry of geometries.values()) geometry.dispose();
