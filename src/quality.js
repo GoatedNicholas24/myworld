@@ -23,6 +23,7 @@ export const QUALITY = {
     vegetationMidFadeEnd: 280,
     vegetationFadeWidth: 35,
     resourceRadius: 300,
+    resourceChunkCacheLimit: 48,
   },
   HIGH: {
     name: "HIGH",
@@ -46,6 +47,7 @@ export const QUALITY = {
     vegetationMidFadeEnd: 280,
     vegetationFadeWidth: 35,
     resourceRadius: 700,
+    resourceChunkCacheLimit: 96,
   },
 };
 
