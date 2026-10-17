@@ -467,6 +467,7 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
 
   function setQuality(nextQuality) {
     quality = nextQuality;
+    resourceSystem?.setCacheLimit(nextQuality.resourceChunkCacheLimit);
     for (const record of [...records.values()]) disposeRecord(record);
     queue = [];
     lastRebuildX = NaN;
