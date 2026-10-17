@@ -130,9 +130,14 @@ function makeGeometry(THREE, kind, level) {
   return geometry;
 }
 
-function makeFadeMaterial(THREE, level, radius) {
-  const fadeIn = level === "near" ? [-1000000, -999999] : level === "simple" ? [60, 100] : [220, 280];
-  const fadeOut = level === "near" ? [60, 100] : level === "simple" ? [220, 280] : [Math.max(280, radius - 35), radius];
+function makeFadeMaterial(THREE, level, preset) {
+  const radius = preset.vegetationRadius;
+  const nearStart = preset.vegetationNearFadeStart;
+  const nearEnd = preset.vegetationNearEnd;
+  const midEnd = preset.vegetationMidEnd;
+  const midFadeEnd = preset.vegetationMidFadeEnd;
+  const fadeIn = level === "near" ? [-1000000, -999999] : level === "simple" ? [nearStart, nearEnd] : [midEnd, midFadeEnd];
+  const fadeOut = level === "near" ? [nearStart, nearEnd] : level === "simple" ? [midEnd, midFadeEnd] : [Math.max(midFadeEnd, radius - preset.vegetationFadeWidth), radius];
   const material = new THREE.MeshLambertMaterial({
     color: 0xffffff,
     vertexColors: false,
@@ -190,7 +195,7 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
 
   function sharedMaterial(kind, level) {
     const key = `${kind}:${level}:${quality.vegetationRadius}`;
-    if (!materials.has(key)) materials.set(key, makeFadeMaterial(THREE, level, quality.vegetationRadius));
+    if (!materials.has(key)) materials.set(key, makeFadeMaterial(THREE, level, quality));
     return materials.get(key);
   }
 
@@ -284,10 +289,10 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
 
     for (const plant of candidates) {
       let levels;
-      if (plant.distance < 60) levels = ["near"];
-      else if (plant.distance < 100) levels = ["near", "simple"];
-      else if (plant.distance < 220) levels = ["simple"];
-      else if (plant.distance < 280) levels = ["simple", "card"];
+      if (plant.distance < quality.vegetationNearFadeStart) levels = ["near"];
+      else if (plant.distance < quality.vegetationNearEnd) levels = ["near", "simple"];
+      else if (plant.distance < quality.vegetationMidEnd) levels = ["simple"];
+      else if (plant.distance < quality.vegetationMidFadeEnd) levels = ["simple", "card"];
       else levels = ["card"];
 
       const cost = levels.reduce((sum, level) => {
@@ -295,7 +300,7 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
         return sum + (geometry.index ? geometry.index.count / 3 : geometry.attributes.position.count / 3);
       }, 0);
       if (cost > availableBudget - triangleCount) {
-        const fallback = plant.distance < 100 ? ["near"] : plant.distance < 280 ? ["simple"] : ["card"];
+        const fallback = plant.distance < quality.vegetationNearEnd ? ["near"] : plant.distance < quality.vegetationMidFadeEnd ? ["simple"] : ["card"];
         const fallbackCost = fallback.reduce((sum, level) => {
           const geometry = sharedGeometry(plant.kind, level);
           return sum + (geometry.index ? geometry.index.count / 3 : geometry.attributes.position.count / 3);
@@ -429,12 +434,16 @@ export function createVegetationSystem({ THREE, terrain, metadata, worldSeed, in
     const rules = biomeConfig[biomeId]?.vegetation ?? [];
     const radius = preset.vegetationRadius;
     const area = (r0, r1) => Math.PI * Math.max(0, Math.min(radius, r1) ** 2 - Math.min(radius, r0) ** 2) / 10000;
+    const nearStart = preset.vegetationNearFadeStart;
+    const nearEnd = preset.vegetationNearEnd;
+    const midEnd = preset.vegetationMidEnd;
+    const midFadeEnd = preset.vegetationMidFadeEnd;
     const bands = [
-      { area: area(0, 60), levels: ["near"] },
-      { area: area(60, 100), levels: ["near", "simple"] },
-      { area: area(100, 220), levels: ["simple"] },
-      { area: area(220, 280), levels: ["simple", "card"] },
-      { area: area(280, radius), levels: ["card"] },
+      { area: area(0, nearStart), levels: ["near"] },
+      { area: area(nearStart, nearEnd), levels: ["near", "simple"] },
+      { area: area(nearEnd, midEnd), levels: ["simple"] },
+      { area: area(midEnd, midFadeEnd), levels: ["simple", "card"] },
+      { area: area(midFadeEnd, radius), levels: ["card"] },
     ];
     let triangles = 0;
     for (const rule of rules) {
