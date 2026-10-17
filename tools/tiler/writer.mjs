@@ -63,6 +63,8 @@ function createIndex(binaryFileCount, binaryBytes, perLod, farBytes, auxiliaryFi
       biome: "lod_<quads>/chunk_<i>_<j>/biome_u8.bin",
       farHeight: "far/height_u16.bin",
       farBiome: "far/biome_u8.bin",
+      density: "density/density_50m_<resource_id>_u8.bin",
+      densityIndex: "density/index.json",
       index: "index.json",
     },
     perLod,
