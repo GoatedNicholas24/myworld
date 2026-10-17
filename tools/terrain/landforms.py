@@ -144,6 +144,7 @@ def priority_flood(z, eps=1e-3):
     """
     H, W = z.shape
     zf = z.astype(np.float64).ravel().tolist()
+    epsl = None if np.isscalar(eps) else np.asarray(eps, dtype=np.float64).ravel().tolist()   # per-cell eps allowed
     seen = bytearray(H * W)
     parent = [-1] * (H * W)
     dist = [1.0] * (H * W)
@@ -179,7 +180,7 @@ def priority_flood(z, eps=1e-3):
             parent[j] = i
             dist[j] = d
             if zf[j] <= zc:
-                zf[j] = zc + eps
+                zf[j] = zc + (eps if epsl is None else epsl[j])
             push(heap, (zf[j], j))
     return (np.array(zf).reshape(H, W), np.array(parent, dtype=np.int64),
             np.array(order, dtype=np.int64), np.array(dist))

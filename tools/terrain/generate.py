@@ -22,6 +22,7 @@ REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
 
 import landforms as L   # noqa: E402
 import derive as D      # noqa: E402
+import water as W       # noqa: E402
 
 H0, HSPAN = 900.0, 4400.0
 
@@ -58,16 +59,25 @@ def main():
 
     log("heightfield")
     z, _ = L.make_heightfield(a.seed, log=log)
+    log("lakes")
+    z, lakes = W.make_lakes(z, a.seed, log=log)
     log("rivers")
-    z, river_dist, logA, A_up = D.rivers(z, log=log)
-    z = np.clip(z, L.ELEV_FLOOR, L.ELEV_CEIL)   # cubic resampling can overshoot by a metre or two
+    z, wi = W.build_rivers(z, lakes, a.seed, log=log)
+    river_dist, logA, A_up = wi["river_dist"], wi["logA"], wi["A_up"]
+    z = np.clip(z, 900.0, L.ELEV_CEIL)
     log("derived maps")
     slope_rr, wet, rock = D.derive_maps(z, river_dist, logA, A_up, a.seed)
 
     log("biomes and resource densities")
     rm = D.RuleMaps(z, slope_rr, wet, rock, river_dist, a.seed)
     biome, _, shares = D.biome_map(rm, biomes)
+    # the bed of a lake or big river is painted as wetland mud so it reads correctly under clear water
+    wet_idx = [b["id"] for b in biomes].index("wetland_river_bank")
+    biome[wi["water_any"]] = wet_idx
+    shares = {b["id"]: float((biome == i).mean()) for i, b in enumerate(biomes)}
     dens = D.density_maps(rm, rules)
+    for m in dens.values():          # nothing grows or can be gathered under water
+        m[wi["water_any"]] = 0
 
     log("writing")
     h16 = np.clip(np.round((z - H0) / HSPAN * 65535), 0, 65535).astype(np.uint16)
@@ -79,12 +89,18 @@ def main():
         "rock_u8.bin": np.clip(np.round(rock * 255), 0, 255).astype(np.uint8),
         "river_dist_u16.bin": np.clip(np.round(river_dist), 0, 2000).astype(np.uint16),
         "biome_u8.bin": biome,
+        "water_level_u16.bin": np.where(wi["level"] > 0, np.clip(np.round((wi["level"] - H0) / HSPAN * 65535), 1, 65535), 0).astype(np.uint16),
     }
     for rid, m in dens.items():
         files[f"density_{rid}_u8.bin"] = m
     for name, arr in files.items():
         assert arr.shape == (L.N, L.N), (name, arr.shape)
         write(os.path.join(a.out, name), arr)
+
+    doc = W.rivers_doc(wi["rivers"], lakes)
+    with open(os.path.join(a.out, "rivers.json"), "w") as f:
+        json.dump(doc, f, separators=(",", ":"))
+    by_class = doc["class_totals"]
 
     zq = H0 + h16.astype(np.float64) / 65535 * HSPAN
     stats = {
@@ -112,8 +128,22 @@ def main():
             "slope": {"file": "slope_u8.bin", "type": "uint8", "meaning": "slope angle in degrees = value * 90 / 255"},
             "wetness": {"file": "wetness_u8.bin", "type": "uint8", "meaning": "value / 255"},
             "rock": {"file": "rock_u8.bin", "type": "uint8", "meaning": "value / 255"},
-            "river_dist": {"file": "river_dist_u16.bin", "type": "uint16", "meaning": "metres to nearest river bank, capped at 2000"},
+            "river_dist": {"file": "river_dist_u16.bin", "type": "uint16", "meaning": "metres to the nearest lake or river water (rivers from 3 km2 drained area up), 0 in the water, capped at 2000"},
             "biome": {"file": "biome_u8.bin", "type": "uint8", "meaning": "index into biomes[]"},
+            "water_level": {"file": "water_level_u16.bin", "type": "uint16",
+                            "meaning": "0 = no water; otherwise water surface elevation, same encoding as the heightmap "
+                                       "(900 + value / 65535 * 4400 m). Lakes plus rivers of class medium and up."},
+        },
+        "water": {
+            "rivers_file": "rivers.json",
+            "level_file": "water_level_u16.bin",
+            "note": "see docs/WATER_DATA.md; level map covers lakes and rivers of class medium and up, "
+                    "rivers.json has every river including streams",
+            "lakes": [{"id": l["id"], "name": l["name"], "level_m": l["level_m"], "area_km2": l["area_km2"],
+                       "max_depth_m": l["max_depth_m"], "centre": l["centre"], "outflow": l["outflow"]} for l in doc["lakes"]],
+            "classes": doc["classes"],
+            "rivers": {"count": len(doc["rivers"]), "nodes": sum(len(r["nodes"]) for r in doc["rivers"]),
+                       "length_km": round(sum(r["length_m"] for r in doc["rivers"]) / 1000, 1), "by_class": by_class},
         },
         "biomes": [{"index": i, "id": b["id"], "name": b["name"], "paint": b["paint"],
                     "share": round(shares[b["id"]], 4)} for i, b in enumerate(biomes)],
@@ -123,7 +153,7 @@ def main():
                                        **({"review": True} if r.get("review") else {})} for r in rules},
         "stats": stats,
         "landmarks": landmark_report,
-        "sha256_16": {n: sha(os.path.join(a.out, n)) for n in sorted(files)},
+        "sha256_16": {n: sha(os.path.join(a.out, n)) for n in sorted(list(files) + ["rivers.json"])},
     }
     with open(os.path.join(a.out, "terrain.json"), "w") as f:
         json.dump(meta, f, indent=2)
@@ -137,6 +167,9 @@ def main():
     print("elevation", [round(v) for v in stats["elevation_m"]], "m;  biome shares:")
     for b in meta["biomes"]:
         print(f"  {b['id']:26s}{b['share'] * 100:6.1f}%")
+    print("water:", json.dumps(meta["water"]["rivers"]))
+    for l in meta["water"]["lakes"]:
+        print(f"  {l['id']:14s} level {l['level_m']:7.1f} m  area {l['area_km2']:5.2f} km2  deepest {l['max_depth_m']:5.1f} m")
     for l in landmark_report:
         ok = l["design_range_m"][0] <= l["mean_m"] <= l["design_range_m"][1]
         print(f"  {l['name']:28s} mean {l['mean_m']:5d}  {'OK' if ok else 'OUT OF RANGE'}")
@@ -144,6 +177,7 @@ def main():
     if a.preview:
         import preview
         preview.make(a.out, meta)
+        preview.make_water(a.out)
 
 
 if __name__ == "__main__":

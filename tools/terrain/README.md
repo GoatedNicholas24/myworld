@@ -19,25 +19,30 @@ is, and it lists every file with a short hash. The tiler (T004) reads the `.bin`
    so the Central Valley drains). Stream-power erosion (priority-flood routing, 40 iterations) carves valleys.
    A low-frequency correction then pins every landmark back to its design elevation. The result is resampled
    to 2001 x 2001 (10 m) with fine ridged detail, clamped to 930-5200 m.
-2. `derive.py`: rivers are found with flow routing on a 20 m grid (drained area >= 5 km2), carved into the
-   height (depth and width grow with drained area) and bent with a small meander warp. Then slope, wetness,
-   rock and river distance. The rule engine applies `data/biomes.json` and `data/resource_rules.json`
-   exactly as the contract describes.
-3. `generate.py`: writes everything and `terrain.json` (encodings, biome palette and shares, resource
-   density metadata, landmark report, file hashes).
+2. `water.py`: four lakes (one large, three smaller) are placed on flat ground, their basins carved and banks
+   shaped; then rivers are traced from flow routing (streams from 0.6 km2 drained area up to a Nile-class
+   trunk), smoothed, given a width, depth and a falling water surface, and carved into the height.
+   Writes `rivers.json` and `water_level_u16.bin`. Full format: `docs/WATER_DATA.md`.
+3. `derive.py`: slope, wetness and rock; the rule engine applies `data/biomes.json` and
+   `data/resource_rules.json` exactly as the contract describes (nothing is placed under water).
+4. `generate.py`: writes everything and `terrain.json` (encodings, biome palette and shares, resource
+   density metadata, water summary, landmark report, file hashes).
+5. `verify_water.py`: reads the files back and checks water against the heightmap (run it after generate).
 
 ## Output notes
 
 - `biome_u8.bin`: index into `biomes[]` in `terrain.json` (same order as `data/biomes.json`).
 - `density_<id>_u8.bin`: rule weight 0..1 as value/255. Expected objects per km2 = weight x `density_per_km2`;
   the runtime spawner must keep `min_spacing_m` apart. Values for every resource are in `terrain.json`.
-- `river_dist_u16.bin`: metres from the river bank (0 inside the channel), capped at 2000.
-- Tuning knobs live at the top of each module (K and iterations in `stream_power_erode`, `RIVER_MIN_KM2`,
+- `river_dist_u16.bin`: metres to the nearest lake or river water (rivers from 3 km2 drained area up), 0 in the water, capped at 2000.
+- `water_level_u16.bin` and `rivers.json`: see `docs/WATER_DATA.md`.
+- Tuning knobs live at the top of each module (K and iterations in `stream_power_erode`, `AMIN_KM2`, `W_MAX`, `LAKES` in `water.py`,
   the wetness formula in `derive_maps`). Change them, rerun, and read the landmark report it prints.
 
 ## Known limits
 
-- Lakes are not modelled yet (rivers/lakes are a separate later layer). The Central Valley is a drained valley.
-- Rivers are on a 20 m routing grid, so the smallest streams are missing; the water layer can add more.
+- Streams are 2-5 m wide but the heightmap has 10 m cells, so their carved bed is only a shallow dip; the
+  ribbon in `rivers.json` is the true channel.
+- The trunk is flat for a long reach in the Central Valley and then drops into the lake basin as rapids.
 - Forest plateau and rift cliffs are modest in share (3% and 4%); the rules, not the terrain, decide that.
 - A faint straight scarp near x = 6.5 km (Western Plateau edge) comes from the landmark blend; easy to soften.

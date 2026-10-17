@@ -114,3 +114,19 @@
 
 **Next step**
 - Add layered distant hills (simple silhouettes in code) fading into the fog, to give the horizon depth and a more Firewatch-like look.
+## 2026-10-17: Water data (lakes and rivers)
+
+**What was built**
+- `tools/terrain/water.py`: four lakes (one large, three smaller) and a river network from wadable streams (2.4 m wide) up to one Nile-class river (300 m wide, 8 m deep). Channels and lake basins are carved into the heightmap.
+- New outputs: `rivers.json` (committed), `water_level_u16.bin`, a `water` section in `terrain.json`. Format in `docs/WATER_DATA.md`.
+- `tools/terrain/verify_water.py` reads the files back and checks them (all pass); two runs give identical files.
+
+**Changed**
+- Heightmap, wetness, biome and density maps changed (carved water, wetland under water, no resources under water). Regenerate and re-run the tiler.
+- Old river code removed from `derive.py`; `priority_flood` accepts a per-cell eps.
+
+**Known problems**
+- Not yet drawn in the game (T011). Streams are narrower than the 10 m terrain cells.
+
+**Next step**
+- T011: draw the water from `rivers.json`.
