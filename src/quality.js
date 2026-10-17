@@ -14,6 +14,16 @@ export const QUALITY = {
     terrainRings: [200, 500, 1000, 2000],
     terrainFarStride: 2, // every second far sample: 126 x 126 vertices
     terrainTriangleBudget: 150000,
+    vegetationRadius: 300,
+    vegetationTriangleBudget: 60000,
+    vegetationDensityScale: 0.7,
+    vegetationNearFadeStart: 60,
+    vegetationNearEnd: 100,
+    vegetationMidEnd: 220,
+    vegetationMidFadeEnd: 280,
+    vegetationFadeWidth: 35,
+    resourceRadius: 300,
+    resourceChunkCacheLimit: 48,
   },
   HIGH: {
     name: "HIGH",
@@ -28,6 +38,16 @@ export const QUALITY = {
     terrainRings: [375, 875, 1750, 3500],
     terrainFarStride: 1, // full 251 x 251 far grid
     terrainTriangleBudget: 400000,
+    vegetationRadius: 700,
+    vegetationTriangleBudget: 150000,
+    vegetationDensityScale: 1,
+    vegetationNearFadeStart: 60,
+    vegetationNearEnd: 100,
+    vegetationMidEnd: 220,
+    vegetationMidFadeEnd: 280,
+    vegetationFadeWidth: 35,
+    resourceRadius: 700,
+    resourceChunkCacheLimit: 96,
   },
 };
 
