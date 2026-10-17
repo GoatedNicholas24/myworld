@@ -1,5 +1,4 @@
 import vegetationData from "../../data/vegetation.json";
-import { QUALITY } from "../quality.js";
 
 const WORLD_HALF = 10000;
 const WORLD_SIZE = 20000;
