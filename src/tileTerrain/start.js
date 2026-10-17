@@ -110,8 +110,10 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
       hud.textContent =
         `${world.name} · ${moodController.label()}\n` +
         `Quality: ${quality.name} · ${renderer.info.render.triangles.toLocaleString("en-US")} triangles · ${fps} fps\n` +
-        `Drag = look · WASD = walk · Shift = faster\n` +
-        `1-4 = mood · Q = quality`;
+        `Drag = look · WASD = move · Shift = faster · F = flight (Space/Ctrl up/down)\n` +
+        `1-9 = landmarks · F1-F4 = mood · Q = quality · N = minimap · M = full map\n` +
+        `Position: ${((camera.position.x + 10000) / 1000).toFixed(2)} km east / ${((camera.position.z + 10000) / 1000).toFixed(2)} km south · ${tileWorld.terrain.heightAt(camera.position.x, camera.position.z).toFixed(0)} m · ${tileWorld.terrain.biomeAt(camera.position.x, camera.position.z)}\n` +
+        `Distance to nearest river: n/a · ${flightStatus} · scale poles: ${markers.count()} · P place / O remove`;
     }
   }
 
