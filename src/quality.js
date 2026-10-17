@@ -17,6 +17,11 @@ export const QUALITY = {
     vegetationRadius: 300,
     vegetationTriangleBudget: 60000,
     vegetationDensityScale: 0.7,
+    vegetationNearFadeStart: 60,
+    vegetationNearEnd: 100,
+    vegetationMidEnd: 220,
+    vegetationMidFadeEnd: 280,
+    vegetationFadeWidth: 35,
     resourceRadius: 300,
   },
   HIGH: {
@@ -35,6 +40,11 @@ export const QUALITY = {
     vegetationRadius: 700,
     vegetationTriangleBudget: 150000,
     vegetationDensityScale: 1,
+    vegetationNearFadeStart: 60,
+    vegetationNearEnd: 100,
+    vegetationMidEnd: 220,
+    vegetationMidFadeEnd: 280,
+    vegetationFadeWidth: 35,
     resourceRadius: 700,
   },
 };
