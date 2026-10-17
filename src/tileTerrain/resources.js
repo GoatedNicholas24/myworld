@@ -1,5 +1,3 @@
-import { decodeElevation } from "./tileCache.js";
-
 const WORLD_HALF = 10000;
 const CHUNK_METRES = 250;
 const CELLS_PER_CHUNK = 5;
@@ -182,8 +180,13 @@ export async function createResourceSystem({ THREE, tileRoot, worldSeed, terrain
     return nodes;
   }
 
-  function createChunkMeshes(i, j) {
-    const nodes = getChunkNodes(i, j);
+  function createChunkMeshes(i, j, camera = null, radius = Infinity) {
+    const nodes = getChunkNodes(i, j).filter((node) => {
+      if (!camera || !Number.isFinite(radius)) return true;
+      const dx = node.x - camera.position.x;
+      const dz = node.z - camera.position.z;
+      return dx * dx + dz * dz <= radius * radius;
+    });
     const group = new THREE.Group();
     let triangles = 0;
     for (const id of definitions.keys()) {
