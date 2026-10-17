@@ -9,6 +9,11 @@ export const QUALITY = {
     groundSegments: 15, // ground detail per 60 m chunk (one point every 4 m)
     treeDetail: 0, // simplest tree shapes
     landmarkSegments: 36, // mountain detail (grid squares per side)
+    // Tile ring radii in metres, ordered for LOD 64, 32, 16 and 8.
+    // Reduced from the initial targets to keep LOW near the 150k triangle budget.
+    terrainRings: [200, 500, 1000, 2000],
+    terrainFarStride: 2, // every second far sample: 126 x 126 vertices
+    terrainTriangleBudget: 150000,
   },
   HIGH: {
     name: "HIGH",
@@ -19,6 +24,10 @@ export const QUALITY = {
     groundSegments: 30, // one point every 2 m
     treeDetail: 1,
     landmarkSegments: 64,
+    // Initial target radii; expected startup terrain total is about 392k triangles.
+    terrainRings: [375, 875, 1750, 3500],
+    terrainFarStride: 1, // full 251 x 251 far grid
+    terrainTriangleBudget: 400000,
   },
 };
 

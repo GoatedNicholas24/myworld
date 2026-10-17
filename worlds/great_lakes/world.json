@@ -1,0 +1,71 @@
+{
+  "id": "great_lakes",
+  "name": "Great Lakes Region",
+  "description": "A broad Great Lakes landscape with a central valley and a massif to the north.",
+  "location": {
+    "place": "Great Lakes region, East Africa (representative terrain)",
+    "latitude": 0.5,
+    "longitude": 30.0
+  },
+  "seed": 7,
+  "defaultMood": "midday",
+  "terrain": {
+    "source": "tiles",
+    "tileRoot": "/terrain/great_lakes/tiles",
+    "worldSize": 20000,
+    "chunkMetres": 250,
+    "lods": [64, 32, 16, 8],
+    "farSamples": 251
+  },
+  "grass": {},
+  "wind": {},
+  "props": {},
+  "camera": {
+    "fov": 65,
+    "eyeHeight": 1.7,
+    "walkSpeed": 3,
+    "runSpeed": 12,
+    "walkRadius": 9900,
+    "start": [0, 0],
+    "startBearing": 0
+  },
+  "moods": [
+    {
+      "id": "goldenHour",
+      "label": "Golden hour",
+      "sky": { "top": "#526b89", "middle": "#d5a47d", "horizon": "#f0d0a2" },
+      "fog": { "color": "#e4c5a1", "near": 50, "far": 15000 },
+      "sun": { "color": "#ffcf91", "intensity": 1.1, "elevation": 12, "azimuth": 250, "glow": 0.8 },
+      "ambient": { "color": "#8797b2", "intensity": 0.6 },
+      "grass": { "dry": "#c1a76d", "olive": "#7d8b54", "fresh": "#5e8b4c" }
+    },
+    {
+      "id": "midday",
+      "label": "Midday",
+      "sky": { "top": "#5484b5", "middle": "#a5c5d4", "horizon": "#d8e0d9" },
+      "fog": { "color": "#d8e0d9", "near": 80, "far": 18000 },
+      "sun": { "color": "#fff2dc", "intensity": 1.05, "elevation": 65, "azimuth": 165, "glow": 0.25 },
+      "ambient": { "color": "#9baec2", "intensity": 0.72 },
+      "grass": { "dry": "#c2b07a", "olive": "#849257", "fresh": "#65945a" }
+    },
+    {
+      "id": "overcast",
+      "label": "Overcast",
+      "sky": { "top": "#7d8990", "middle": "#aab4b6", "horizon": "#cbd1ce" },
+      "fog": { "color": "#cbd1ce", "near": 30, "far": 12000 },
+      "sun": { "color": "#e6e9e7", "intensity": 0.35, "elevation": 40, "azimuth": 200, "glow": 0.03 },
+      "ambient": { "color": "#a0aab1", "intensity": 0.95 },
+      "grass": { "dry": "#b2a679", "olive": "#7a8757", "fresh": "#6a8d62" }
+    },
+    {
+      "id": "dawn",
+      "label": "Dawn",
+      "sky": { "top": "#3e5074", "middle": "#c5a0a8", "horizon": "#efd0bf" },
+      "fog": { "color": "#efd0bf", "near": 40, "far": 14000 },
+      "sun": { "color": "#ffb39a", "intensity": 0.9, "elevation": 7, "azimuth": 85, "glow": 0.65 },
+      "ambient": { "color": "#7c89ad", "intensity": 0.55 },
+      "grass": { "dry": "#c3ad7c", "olive": "#7f8956", "fresh": "#668b5c" }
+    }
+  ],
+  "assets": []
+}
