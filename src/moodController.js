@@ -4,7 +4,7 @@ const TRANSITION_SECONDS = 1;
 const smooth = (t) => t * t * (3 - 2 * t);
 
 // Listens for the keys 1-4 and blends smoothly from one mood to the next.
-export function createMoodController(moods, targets, startIndex = 0) {
+export function createMoodController(moods, targets, startIndex = 0, keyCodes = moods.map((_, index) => `Digit${index + 1}`)) {
   const current = cloneMood(moods[startIndex]); // what is on screen right now
   let from = cloneMood(current);
   let to = moods[startIndex];
@@ -34,8 +34,9 @@ export function createMoodController(moods, targets, startIndex = 0) {
   }
 
   window.addEventListener("keydown", (event) => {
-    const match = /^(?:Digit|Numpad)([1-9])$/.exec(event.code);
-    if (match) setMood(Number(match[1]) - 1);
+    if (event.repeat) return;
+    const index = keyCodes.indexOf(event.code);
+    if (index >= 0) setMood(index);
   });
 
   setMood(startIndex, true);
