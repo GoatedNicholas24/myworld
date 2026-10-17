@@ -161,7 +161,14 @@ export async function createResourceSystem({ THREE, tileRoot, worldSeed, terrain
       const accepted = candidates.filter((candidate) => {
         const minSpacing = definitions.get(id).min_spacing_m;
         for (const other of candidates) {
-          if (other === candidate || other.priority >= candidate.priority) continue;
+          if (other === candidate) continue;
+          const winsTie = other.priority === candidate.priority && (
+            other.i < candidate.i ||
+            (other.i === candidate.i && other.j < candidate.j) ||
+            (other.i === candidate.i && other.j === candidate.j && other.x < candidate.x) ||
+            (other.i === candidate.i && other.j === candidate.j && other.x === candidate.x && other.z < candidate.z)
+          );
+          if (other.priority > candidate.priority || (other.priority === candidate.priority && !winsTie)) continue;
           const dx = other.x - candidate.x;
           const dz = other.z - candidate.z;
           if (dx * dx + dz * dz < minSpacing * minSpacing) return false;
