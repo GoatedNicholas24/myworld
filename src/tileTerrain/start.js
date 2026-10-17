@@ -112,4 +112,6 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
   }
 
   requestAnimationFrame(frame);
+  // Expose a small runtime API so later gathering/gameplay systems can query nearby nodes.
+  return { camera, terrain: tileWorld.terrain, tileWorld, livingGround, controls };
 }
