@@ -7,7 +7,7 @@ random.seed(274)
 text_block = bpy.context.space_data.text if bpy.context.space_data and bpy.context.space_data.type == "TEXT_EDITOR" else None
 if not text_block or not text_block.filepath:
     raise RuntimeError("Save this script in its project path before running.")
-script_path = Path(bpy.path.abspath(text_block.filepath)).resolve()
+script_path = Path(globals().get("MY_WORLD_SCRIPT_PATH", bpy.path.abspath(text_block.filepath))).resolve()
 root = script_path.parents[4]
 if not (root / "package.json").exists():
     raise RuntimeError(f"My World repository not found: {root}")
@@ -97,7 +97,9 @@ for i in range(52):
         verts.extend([(cx-math.sin(a)*width,cy+math.cos(a)*width,h*t),(cx+math.sin(a)*width,cy-math.cos(a)*width,h*t)])
     faces=[(2*k,2*k+1,2*k+3,2*k+2) for k in range(4)]
     blade=mesh_object(f"A02_Blade_{i:03d}",verts,faces,random.choice(gold))
-    blade.parent=pivots[i%3]
+    world_matrix = blade.matrix_world.copy()
+    blade.parent = pivots[i % 3]
+    blade.matrix_world = world_matrix
 
 # Save editable source and export only this asset's collection.
 bpy.ops.object.select_all(action="DESELECT")
