@@ -64,6 +64,9 @@ export class TileCache {
     if (biomeBuffer.byteLength !== biomeExpected) {
       throw new Error(`${biomeUrl}: expected ${biomeExpected} bytes, received ${biomeBuffer.byteLength}`);
     }
+    if (waterBuffer && waterBuffer.byteLength !== heightExpected) {
+      throw new Error(`water_u16.bin for chunk (${i},${j}) LOD ${lod}: expected ${heightExpected} bytes, received ${waterBuffer.byteLength}`);
+    }
 
     // The tile format is uint16 little-endian. The target browsers use
     // little-endian typed arrays, matching the binary files written by T004.
@@ -73,6 +76,7 @@ export class TileCache {
       lod,
       heights: new Uint16Array(heightBuffer),
       biomes: new Uint8Array(biomeBuffer),
+      water: waterBuffer ? new Uint16Array(waterBuffer) : null,
     };
     return this.remember(i, j, lod, tile);
   }
