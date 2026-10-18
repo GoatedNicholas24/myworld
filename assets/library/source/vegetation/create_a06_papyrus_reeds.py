@@ -5,9 +5,10 @@ from mathutils import Vector
 # A06 - Papyrus and Wetland Reed Clump
 random.seed(822)
 text_block = bpy.context.space_data.text if bpy.context.space_data and bpy.context.space_data.type == "TEXT_EDITOR" else None
-if not text_block or not text_block.filepath:
+script_override = globals().get("MY_WORLD_SCRIPT_PATH")
+if not script_override and (not text_block or not text_block.filepath):
     raise RuntimeError("Save this script in its project path before running.")
-script_path = Path(globals().get("MY_WORLD_SCRIPT_PATH", bpy.path.abspath(text_block.filepath))).resolve()
+script_path = Path(script_override or bpy.path.abspath(text_block.filepath)).resolve()
 root = script_path.parents[4]
 if not (root / "package.json").exists():
     raise RuntimeError(f"My World repository not found: {root}")
