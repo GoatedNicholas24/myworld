@@ -24,6 +24,7 @@ export const QUALITY = {
     vegetationFadeWidth: 35,
     resourceRadius: 300,
     resourceChunkCacheLimit: 48,
+    waterRiverRadius: 600,
   },
   HIGH: {
     name: "HIGH",
@@ -48,6 +49,7 @@ export const QUALITY = {
     vegetationFadeWidth: 35,
     resourceRadius: 700,
     resourceChunkCacheLimit: 96,
+    waterRiverRadius: 1200,
   },
 };
 

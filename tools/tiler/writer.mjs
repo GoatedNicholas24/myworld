@@ -1,7 +1,7 @@
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { CHUNKS_PER_SIDE, FAR_SAMPLES, LODS } from "./maps.mjs";
-import { buildChunkBuffers, buildFarBuffers } from "./sampling.mjs";
+import { buildChunkBuffers, buildFarBuffers, buildWaterChunkBuffer } from "./sampling.mjs";
 
 function jsonBytes(value) {
   return Buffer.from(`${JSON.stringify(value, null, 2)}\n`, "utf8");
@@ -61,6 +61,8 @@ function createIndex(binaryFileCount, binaryBytes, perLod, farBytes, auxiliaryFi
     fileNames: {
       height: "lod_<quads>/chunk_<i>_<j>/height_u16.bin",
       biome: "lod_<quads>/chunk_<i>_<j>/biome_u8.bin",
+      water: "lod_<quads>/chunk_<i>_<j>/water_u16.bin (wet chunks only)",
+      waterIndex: "water_index.json",
       farHeight: "far/height_u16.bin",
       farBiome: "far/biome_u8.bin",
       density: "density/density_50m_<resource_id>_u8.bin",
@@ -111,6 +113,7 @@ export async function writeTiles(outputDir, maps) {
   await mkdir(outputDir, { recursive: true });
 
   const binary = { fileCount: 0, bytes: 0 };
+  const waterIndex = { version: 1, encoding: "uint16 little-endian; 0 = no water", lods: Object.fromEntries(LODS.map((lod) => [lod, []])) };
   const perLod = {};
   for (const quads of LODS) {
     let lodFileCount = 0;
@@ -121,12 +124,19 @@ export async function writeTiles(outputDir, maps) {
     for (let j = 0; j < CHUNKS_PER_SIDE; j += 1) {
       for (let i = 0; i < CHUNKS_PER_SIDE; i += 1) {
         const { height, biome } = buildChunkBuffers(maps.heightBuffer, maps.biomeBuffer, i, j, quads);
+        const water = maps.waterBuffer ? buildWaterChunkBuffer(maps.waterBuffer, i, j, quads) : null;
         const chunkDir = join(lodRoot, `chunk_${i}_${j}`);
         await mkdir(chunkDir, { recursive: true });
         await writeFile(join(chunkDir, "height_u16.bin"), height);
         await writeFile(join(chunkDir, "biome_u8.bin"), biome);
         lodFileCount += 2;
         lodBytes += height.byteLength + biome.byteLength;
+        if (water) {
+          await writeFile(join(chunkDir, "water_u16.bin"), water);
+          waterIndex.lods[quads].push([i, j]);
+          lodFileCount += 1;
+          lodBytes += water.byteLength;
+        }
       }
       if ((j + 1) % 10 === 0) {
         console.log(`LOD ${quads}: completed chunk row ${j + 1}/${CHUNKS_PER_SIDE}`);
@@ -167,30 +177,32 @@ export async function writeTiles(outputDir, maps) {
   binary.fileCount += densityFileCount;
   binary.bytes += densityBytes;
 
+  const waterIndexBuffer = jsonBytes(waterIndex);
+  await writeFile(join(outputDir, "water_index.json"), waterIndexBuffer);
   const { index, buffer: indexBuffer } = createIndex(
     binary.fileCount,
     binary.bytes,
     perLod,
     far.height.byteLength + far.biome.byteLength,
-    1,
-    densityIndexBuffer.byteLength,
+    2,
+    densityIndexBuffer.byteLength + waterIndexBuffer.byteLength,
   );
   // Reconcile totals exactly with the bytes written, including index.json.
-  index.totals.fileCount = binary.fileCount + 2;
+  index.totals.fileCount = binary.fileCount + 3;
   index.totals.binaryFileCount = binary.fileCount;
   index.totals.binaryBytes = binary.bytes;
   index.totals.includesIndexJson = true;
   let indexBytes = indexBuffer.byteLength;
   for (let attempt = 0; attempt < 8; attempt += 1) {
-    index.totals.bytes = binary.bytes + densityIndexBuffer.byteLength + indexBytes;
+    index.totals.bytes = binary.bytes + densityIndexBuffer.byteLength + waterIndexBuffer.byteLength + indexBytes;
     const next = jsonBytes(index).byteLength;
     if (next === indexBytes) break;
     indexBytes = next;
   }
-  index.totals.bytes = binary.bytes + densityIndexBuffer.byteLength + indexBytes;
+  index.totals.bytes = binary.bytes + densityIndexBuffer.byteLength + waterIndexBuffer.byteLength + indexBytes;
   const finalIndexBuffer = jsonBytes(index);
   if (finalIndexBuffer.byteLength !== indexBytes) {
-    index.totals.bytes = binary.bytes + densityIndexBuffer.byteLength + finalIndexBuffer.byteLength;
+    index.totals.bytes = binary.bytes + densityIndexBuffer.byteLength + waterIndexBuffer.byteLength + finalIndexBuffer.byteLength;
   }
   const stableIndexBuffer = jsonBytes(index);
   await writeFile(join(outputDir, "index.json"), stableIndexBuffer);
@@ -198,8 +210,10 @@ export async function writeTiles(outputDir, maps) {
   return {
     binaryFileCount: binary.fileCount,
     binaryBytes: binary.bytes,
-    fileCount: binary.fileCount + 2,
-    totalBytes: binary.bytes + densityIndexBuffer.byteLength + stableIndexBuffer.byteLength,
+    fileCount: binary.fileCount + 3,
+    waterChunksByLod: Object.fromEntries(LODS.map((lod) => [lod, waterIndex.lods[lod].length])),
+    waterFileCount: Object.values(waterIndex.lods).reduce((sum, list) => sum + list.length, 0),
+    totalBytes: binary.bytes + densityIndexBuffer.byteLength + waterIndexBuffer.byteLength + stableIndexBuffer.byteLength,
     perLod,
     farBytes: far.height.byteLength + far.biome.byteLength,
     indexBytes: stableIndexBuffer.byteLength,

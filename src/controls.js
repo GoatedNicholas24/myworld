@@ -10,6 +10,7 @@ export function createControls(camera, element, terrain, settings, options = {})
   let lastX = 0;
   let lastY = 0;
   let flying = false;
+  let waterStatus = { depth: 0, note: "" };
 
   camera.rotation.order = "YXZ";
   camera.position.set(settings.start[0], terrain.heightAt(settings.start[0], settings.start[1]) + settings.eyeHeight, settings.start[1]);
@@ -82,8 +83,19 @@ export function createControls(camera, element, terrain, settings, options = {})
       const cos = Math.cos(yaw);
       const f = forward / length;
       const s = strafe / length;
-      camera.position.x += (-sin * f + cos * s) * speed * delta;
-      camera.position.z += (-cos * f - sin * s) * speed * delta;
+      const moveX = (-sin * f + cos * s) * speed * delta;
+      const moveZ = (-cos * f - sin * s) * speed * delta;
+      const nextX = camera.position.x + moveX;
+      const nextZ = camera.position.z + moveZ;
+      const depth = !flying && terrain.waterDepthAt ? terrain.waterDepthAt(nextX, nextZ) : 0;
+      if (depth > 1.2) {
+        waterStatus = { depth, note: "Too deep to cross" };
+      } else {
+        const wading = depth > 0.4;
+        camera.position.x = nextX - (wading ? moveX * 0.4 : 0);
+        camera.position.z = nextZ - (wading ? moveZ * 0.4 : 0);
+        waterStatus = { depth, note: wading ? `Wading \u00b7 ${depth.toFixed(1)} m` : "" };
+      }
     }
     if (flying) {
       const verticalSpeed = keys.has("ShiftLeft") || keys.has("ShiftRight") ? 600 : 150;
@@ -101,5 +113,5 @@ export function createControls(camera, element, terrain, settings, options = {})
     }
     camera.rotation.set(pitch, yaw, 0);
   }
-  return { update, isFlying: () => flying, visitLandmark, faceTarget };
+  return { update, isFlying: () => flying, visitLandmark, faceTarget, getWaterStatus: () => waterStatus };
 }

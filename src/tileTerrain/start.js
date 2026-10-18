@@ -110,7 +110,7 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
 
     controls.update(delta);
     moodController.update(delta);
-    const terrainBuilds = tileWorld.update(camera);
+    const terrainBuilds = tileWorld.update(camera, delta);
     livingGround.update(camera, tileWorld.getActiveChunks(), Math.max(0, 2 - terrainBuilds));
     mapView.update();
     sky.update(camera);
@@ -122,6 +122,9 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
       const fps = Math.round(frames / hudTime);
       frames = 0;
       hudTime = 0;
+      const riverDistance = tileWorld.terrain.distanceToRiverAt(camera.position.x, camera.position.z);
+      const waterDepth = tileWorld.terrain.waterDepthAt(camera.position.x, camera.position.z);
+      const waterNote = controls.getWaterStatus?.().note || "";
       hud.textContent =
         `${world.name} · ${moodController.label()}\n` +
         `Quality: ${quality.name} · ${renderer.info.render.triangles.toLocaleString("en-US")} triangles · ${fps} fps\n` +
@@ -129,7 +132,7 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
         `Drag = look · WASD = move · Shift = faster · F = flight (Space/Ctrl up/down)\n` +
         `1-9 = landmarks · F1-F4 = mood · Q = quality · N = minimap · M = full map\n` +
         `Position: ${((camera.position.x + 10000) / 1000).toFixed(2)} km from west edge / ${((camera.position.z + 10000) / 1000).toFixed(2)} km from north edge · ${tileWorld.terrain.heightAt(camera.position.x, camera.position.z).toFixed(0)} m · ${tileWorld.terrain.biomeAt(camera.position.x, camera.position.z)}\n` +
-        `Distance to nearest river: n/a · ${flightStatus} · scale poles: ${markers.count()} · P place / O remove`;
+        `River: ${riverDistance == null ? "n/a" : Math.round(riverDistance) + " m"} · depth: ${waterDepth.toFixed(1)} m ${waterNote} · ${flightStatus} · scale poles: ${markers.count()} · P place / O remove`;
     }
   }
 
