@@ -174,6 +174,23 @@ export async function createWaterSystem({ THREE, terrain, terrainRoot, quality }
     console.warn("water: rivers.json is unavailable; wide water tiles can still render.", error.message);
   }
   const riverNodes = rivers.flatMap((reach) => reach.nodes.map((node) => ({ x: node[0], z: node[1], y: node[2], width: node[3], depth: node[4], id: reach.id, class: reach.class })));
+  const riverBuckets = new Map();
+  for (const node of riverNodes) {
+    const key = Math.floor((node.x + HALF) / CHUNK) + "," + Math.floor((node.z + HALF) / CHUNK);
+    if (!riverBuckets.has(key)) riverBuckets.set(key, []);
+    riverBuckets.get(key).push(node);
+  }
+  function nearestRiver(x, z) {
+    let best = null, distance = Infinity;
+    const ci = Math.floor((x + HALF) / CHUNK), cj = Math.floor((z + HALF) / CHUNK);
+    for (let j = cj - 1; j <= cj + 1; j++) for (let i = ci - 1; i <= ci + 1; i++) {
+      for (const node of riverBuckets.get(i + "," + j) ?? []) {
+        const d = Math.hypot(node.x - x, node.z - z);
+        if (d < distance) { distance = d; best = node; }
+      }
+    }
+    return best ? { node: best, distance: Math.max(0, distance - best.width / 2) } : null;
+  }
   function buildChunk(tile, camera) {
     const built = [];
     const wide = buildWideWater(THREE, tile, terrain, material);
@@ -199,12 +216,14 @@ export async function createWaterSystem({ THREE, terrain, terrainRoot, quality }
     update(delta) { elapsed += delta; material.uniforms.uTime.value = elapsed; },
     setQuality(next) { currentQuality = next; },
     waterSurfaceAt(x, z, activeTiles) { return surfaceFromActiveTiles(x, z, activeTiles); },
-    waterDepthAt(x, z, activeTiles) { const surface = surfaceFromActiveTiles(x, z, activeTiles); return surface === null ? 0 : Math.max(0, surface - terrain.heightAt(x, z)); },
-    distanceToRiverAt(x, z) {
-      let best = Infinity;
-      for (const node of riverNodes) best = Math.min(best, Math.hypot(node.x - x, node.z - z));
-      return Number.isFinite(best) ? best : null;
+    waterDepthAt(x, z, activeTiles) {
+      const surface = surfaceFromActiveTiles(x, z, activeTiles);
+      const wideDepth = surface === null ? 0 : Math.max(0, surface - terrain.heightAt(x, z));
+      if (wideDepth > 0) return wideDepth;
+      const nearest = nearestRiver(x, z);
+      return nearest && nearest.distance <= nearest.node.width / 2 ? nearest.node.depth : 0;
     },
+    distanceToRiverAt(x, z) { const nearest = nearestRiver(x, z); return nearest ? nearest.distance : null; },
     dispose() { material.dispose(); bankMaterial.dispose(); },
   };
 }
