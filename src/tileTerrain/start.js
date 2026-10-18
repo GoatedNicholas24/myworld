@@ -6,6 +6,7 @@ import { createLightingUniforms, parseMood } from "../mood.js";
 import { createMoodController } from "../moodController.js";
 import { createControls } from "../controls.js";
 import { createTileTerrain } from "./manager.js";
+import { createWaterMapOverlay } from "./waterMapOverlay.js";
 
 // Game coordinates follow the existing engine: +x is east, -z is north, and
 // Three.js y is elevation. Master row 0 (north) maps to z=-10000; column 0
@@ -28,6 +29,9 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
   const camera = new THREE.PerspectiveCamera(world.camera.fov, 1, 0.2, 30000);
   const lighting = createLightingUniforms();
   const tileWorld = await createTileTerrain({ THREE, world, quality });
+  let waterMap = null;
+  try { waterMap = await createWaterMapOverlay({ terrainRoot: world.terrain.tileRoot.replace(/\/tiles$/, ""), tileRoot: world.terrain.tileRoot, camera }); }
+  catch (error) { console.warn("water map unavailable:", error.message); }
   const controls = createControls(camera, renderer.domElement, tileWorld.terrain, world.camera);
   const sky = createSky(lighting);
   scene.add(sky.mesh, tileWorld.group);
@@ -77,7 +81,8 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
 
     controls.update(delta);
     moodController.update(delta);
-    tileWorld.update(camera);
+    tileWorld.update(camera, delta);
+    waterMap?.update();
     sky.update(camera);
     renderer.render(scene, camera);
 
@@ -87,10 +92,14 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
       const fps = Math.round(frames / hudTime);
       frames = 0;
       hudTime = 0;
+      const riverDistance = tileWorld.terrain.distanceToRiverAt(camera.position.x, camera.position.z);
+      const waterDepth = tileWorld.terrain.waterDepthAt(camera.position.x, camera.position.z);
+      const waterNote = controls.getWaterStatus?.().note || "";
       hud.textContent =
         `${world.name} · ${moodController.label()}\n` +
         `Quality: ${quality.name} · ${renderer.info.render.triangles.toLocaleString("en-US")} triangles · ${fps} fps\n` +
-        `Drag = look · WASD = walk · Shift = faster\n` +
+        `River: ${riverDistance == null ? "n/a" : Math.round(riverDistance) + " m"} · depth: ${waterDepth.toFixed(1)} m ${waterNote}\n` +
+        `Drag = look · WASD = walk · Shift = faster · N = minimap · M = map\n` +
         `1-4 = mood · Q = quality`;
     }
   }

@@ -3,6 +3,7 @@ import { readdir, readFile, stat } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { CHUNKS_PER_SIDE, FAR_SAMPLES, GRID_SAMPLES, LODS, loadMasterMaps } from "./maps.mjs";
+import { buildWaterChunkBuffer } from "./sampling.mjs";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const inputDir = join(repoRoot, "public", "terrain", "great_lakes");
@@ -171,6 +172,34 @@ async function hashSortedFileList(files) {
   return hash.digest("hex");
 }
 
+async function checkWaterTiles(maps) {
+  const indexPath = join(tileRoot, "water_index.json");
+  let index;
+  try { index = JSON.parse(await readFile(indexPath, "utf8")); }
+  catch (error) { fail("Missing or invalid water_index.json: " + error.message); return; }
+  const expectedLods = {};
+  for (const quads of LODS) {
+    const listed = new Set((index.lods?.[quads] ?? []).map(([i, j]) => i + "," + j));
+    const expected = new Set();
+    if (maps.waterBuffer) {
+      for (let j = 0; j < CHUNKS_PER_SIDE; j++) for (let i = 0; i < CHUNKS_PER_SIDE; i++) {
+        const buffer = buildWaterChunkBuffer(maps.waterBuffer, i, j, quads);
+        const path = join(tileRoot, "lod_" + quads, "chunk_" + i + "_" + j, "water_u16.bin");
+        const key = i + "," + j;
+        if (buffer) {
+          expected.add(key);
+          const actual = await readFile(path).catch(() => null);
+          if (!actual) fail("Missing water tile " + path);
+          else if (!actual.equals(buffer)) fail("Water tile samples mismatch: " + path);
+        } else if (await readFile(path).then(() => true).catch(() => false)) fail("Dry chunk should not have a water file: " + path);
+      }
+    }
+    if (expected.size !== listed.size || [...expected].some((key) => !listed.has(key))) fail("water_index.json wet chunk list does not match LOD " + quads);
+    expectedLods[quads] = expected.size;
+  }
+  console.log("Checked water chunks by LOD:", expectedLods);
+}
+
 async function main() {
   const maps = await loadMasterMaps(inputDir);
   const indexPath = join(tileRoot, "index.json");
@@ -182,6 +211,7 @@ async function main() {
   }
 
   for (const quads of LODS) await checkLod(maps, quads);
+  await checkWaterTiles(maps);
 
   const farHeightPath = join(tileRoot, "far", "height_u16.bin");
   const farBiomePath = join(tileRoot, "far", "biome_u8.bin");
