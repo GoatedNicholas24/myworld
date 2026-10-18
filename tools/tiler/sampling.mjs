@@ -97,3 +97,5 @@ export function buildFarBuffers(heightMaster, biomeMaster) {
 }
 
 // Water sampling helpers follow the same deterministic grid arithmetic as terrain.
+
+export const sampleWaterU16 = (buffer, index) => buffer.readUInt16LE(index * 2);
