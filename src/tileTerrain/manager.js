@@ -130,7 +130,9 @@ export async function createTileTerrain({ THREE, world, quality }) {
       tileTriangles += record.triangles;
     }
     const farTriangles = farMeshRecord?.triangles ?? 0;
+    const waterTriangles = [...active.values()].reduce((sum, record) => sum + (record.waterRecords ?? []).reduce((n, water) => n + (water.triangles ?? 0), 0), 0);
     console.log(formatTerrainStats(counts, farTriangles, tileTriangles + farTriangles));
+    console.log("water: active triangles", waterTriangles, "across terrain chunks", active.size);
   }
 
   function replaceFarMesh() {
