@@ -349,6 +349,7 @@ export async function createTileTerrain({ THREE, world, quality }) {
     active.clear();
     if (farMeshRecord) farMeshRecord.mesh.geometry.dispose();
     cache.clear();
+    waterSystem.dispose();
     material.dispose();
   }
 
