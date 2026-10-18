@@ -368,7 +368,7 @@ export async function createTileTerrain({ THREE, world, quality }) {
     dispose,
     getTriangleCount() {
       let total = farMeshRecord?.triangles ?? 0;
-      for (const record of active.values()) total += record.triangles;
+      for (const record of active.values()) { total += record.triangles; for (const water of record.waterRecords ?? []) total += water.triangles ?? 0; }
       return total;
     },
     getWaterTriangleCount() { return [...active.values()].reduce((sum, record) => sum + (record.waterRecords ?? []).reduce((n, water) => n + (water.triangles ?? 0), 0), 0); },
