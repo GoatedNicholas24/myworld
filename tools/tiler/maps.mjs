@@ -68,7 +68,7 @@ export async function loadMasterMaps(inputDir) {
   const sampleCount = GRID_SAMPLES * GRID_SAMPLES;
   const heightPath = join(inputDir, heightName);
   const biomePath = join(inputDir, biomeName);
-  const waterName = terrain.maps?.water_level?.file ?? terrain.water?.level_file ?? null;
+  const waterName = terrain.maps?.water_level?.file ?? terrain.water?.level_file ?? "water_level_u16.bin";
   const waterPath = waterName ? join(inputDir, waterName) : null;
   const [heightBuffer, biomeBuffer, waterBuffer] = await Promise.all([
     readRequiredFile(heightPath, sampleCount * 2),
