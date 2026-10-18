@@ -43,7 +43,7 @@ export class TileCache {
     return tile;
   }
 
-  async load(root, i, j, lod, signal) {
+  async load(root, i, j, lod, signal, hasWater = false) {
     const cached = this.get(i, j, lod);
     if (cached) return cached;
 
