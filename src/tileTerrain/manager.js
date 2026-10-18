@@ -11,10 +11,18 @@ const MAX_CONCURRENT_FETCHES = 4;
 const MAX_BUILDS_PER_FRAME = 2;
 const clamp = (value, low, high) => Math.min(Math.max(value, low), high);
 
+const MISSING_TILES_MESSAGE = "Terrain tiles not generated. Run: python3 tools/terrain/generate.py then node tools/tiler/tile.mjs";
+
 async function fetchBuffer(url) {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`HTTP ${response.status} while fetching ${url}`);
-  return response.arrayBuffer();
+  const buffer = await response.arrayBuffer();
+  const contentType = response.headers.get("content-type") ?? "";
+  const preview = new TextDecoder().decode(buffer.slice(0, 64)).trimStart().toLowerCase();
+  if (contentType.includes("text/html") || preview.startsWith("<!doctype html") || preview.startsWith("<html")) {
+    throw new Error(MISSING_TILES_MESSAGE);
+  }
+  return buffer;
 }
 
 function expectSize(buffer, expected, url) {
@@ -33,7 +41,14 @@ export async function createTileTerrain({ THREE, world, quality }) {
   const metadataUrl = `${terrainRoot}/terrain.json`;
   const metadataResponse = await fetch(metadataUrl);
   if (!metadataResponse.ok) throw new Error(`HTTP ${metadataResponse.status} while fetching ${metadataUrl}`);
-  const metadata = await metadataResponse.json();
+  const metadataType = metadataResponse.headers.get("content-type") ?? "";
+  if (metadataType.includes("text/html")) throw new Error(MISSING_TILES_MESSAGE);
+  let metadata;
+  try {
+    metadata = await metadataResponse.json();
+  } catch {
+    throw new Error(MISSING_TILES_MESSAGE);
+  }
   if (!Array.isArray(metadata.samples) || metadata.samples[0] !== 2001 || metadata.samples[1] !== 2001) {
     throw new Error(`${metadataUrl} must describe a 2001 x 2001 master grid`);
   }
@@ -289,9 +304,38 @@ export async function createTileTerrain({ THREE, world, quality }) {
     return decodeElevation(bilinearRaw(farHeights, FAR_SAMPLES, FAR_SAMPLES, fx, fy));
   }
 
+  function biomeAt(x, z) {
+    const xs = worldToCandidateChunks(x);
+    const zs = worldToCandidateChunks(z);
+    let best = null;
+    for (const j of zs) {
+      for (const i of xs) {
+        const record = active.get(activeKey(i, j));
+        if (record && (!best || record.lod > best.lod)) best = record;
+      }
+    }
+    let biomeIndex;
+    if (best) {
+      const col = Math.round(clamp((x - (-WORLD_HALF + best.i * CHUNK_METRES)) / CHUNK_METRES, 0, 1) * best.lod);
+      const row = Math.round(clamp((z - (-WORLD_HALF + best.j * CHUNK_METRES)) / CHUNK_METRES, 0, 1) * best.lod);
+      biomeIndex = best.tile.biomes[row * (best.lod + 1) + col];
+    } else {
+      const col = Math.round(clamp((x + WORLD_HALF) / 80, 0, FAR_SAMPLES - 1));
+      const row = Math.round(clamp((z + WORLD_HALF) / 80, 0, FAR_SAMPLES - 1));
+      biomeIndex = farBiomes[row * FAR_SAMPLES + col];
+    }
+    return metadata.biomes.find((biome) => biome.index === biomeIndex)?.name ?? "Unknown";
+  }
+
   const terrain = {
-    heightAt, soilAt: () => 0, sandAt: () => 0, clearingAt: () => 0, grassCoverAt: () => 0,
-    lakes: [], sandColor: "#8b8a68",
+    heightAt,
+    biomeAt,
+    soilAt: () => 0,
+    sandAt: () => 0,
+    clearingAt: () => 0,
+    grassCoverAt: () => 0,
+    lakes: [],
+    sandColor: "#8b8a68",
     isWaterAt: (x, z) => waterSystem.waterDepthAt(x, z, active) > 0,
     waterSurfaceAt: (x, z) => waterSystem.waterSurfaceAt(x, z, active),
     waterDepthAt: (x, z) => waterSystem.waterDepthAt(x, z, active),
@@ -336,6 +380,7 @@ export async function createTileTerrain({ THREE, world, quality }) {
       printStats();
       statsDirty = false;
     }
+    return built;
   }
 
   function setQuality(nextQuality) {
@@ -367,7 +412,11 @@ export async function createTileTerrain({ THREE, world, quality }) {
   return {
     group,
     terrain,
+    mapData: { metadata, farHeights, farBiomes },
     update,
+    getActiveChunks() {
+      return [...active.values()];
+    },
     setQuality,
     dispose,
     getTriangleCount() {

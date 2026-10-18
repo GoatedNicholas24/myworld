@@ -5,10 +5,18 @@ function expectedBytes(quads, kind) {
   return samples * samples * (kind === "height" ? 2 : 1);
 }
 
+const MISSING_TILES_MESSAGE = "Terrain tiles not generated. Run: python3 tools/terrain/generate.py then node tools/tiler/tile.mjs";
+
 async function fetchArrayBuffer(url, signal) {
   const response = await fetch(url, { signal });
   if (!response.ok) throw new Error(`HTTP ${response.status} while fetching ${url}`);
-  return response.arrayBuffer();
+  const buffer = await response.arrayBuffer();
+  const contentType = response.headers.get("content-type") ?? "";
+  const preview = new TextDecoder().decode(buffer.slice(0, 64)).trimStart().toLowerCase();
+  if (contentType.includes("text/html") || preview.startsWith("<!doctype html") || preview.startsWith("<html")) {
+    throw new Error(MISSING_TILES_MESSAGE);
+  }
+  return buffer;
 }
 
 // Decoded tile buffers are kept in a small LRU. Active meshes keep their own

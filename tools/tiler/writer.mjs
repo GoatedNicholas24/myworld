@@ -7,7 +7,52 @@ function jsonBytes(value) {
   return Buffer.from(`${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
 
-function createIndex(binaryFileCount, binaryBytes, perLod, farBytes, waterIndexBytes = 0) {
+const DENSITY_SAMPLES = 401;
+
+function buildDensity50m(source) {
+  const output = Buffer.alloc(DENSITY_SAMPLES * DENSITY_SAMPLES);
+  for (let row = 0; row < DENSITY_SAMPLES; row += 1) {
+    for (let col = 0; col < DENSITY_SAMPLES; col += 1) {
+      let total = 0;
+      // Average a centred 5 x 5 window of 10 m samples. Edge coordinates
+      // clamp to the master grid so the 401 x 401 output covers the full world.
+      for (let dy = -2; dy <= 2; dy += 1) {
+        const sourceRow = Math.max(0, Math.min(2000, row * 5 + dy));
+        for (let dx = -2; dx <= 2; dx += 1) {
+          const sourceCol = Math.max(0, Math.min(2000, col * 5 + dx));
+          total += source[sourceRow * 2001 + sourceCol];
+        }
+      }
+      output[row * DENSITY_SAMPLES + col] = Math.round(total / 25);
+    }
+  }
+  return output;
+}
+
+function createDensityIndex(maps) {
+  const resources = {};
+  for (const [id, { definition }] of Object.entries(maps.densityMaps ?? {})) {
+    resources[id] = {
+      file: `density_50m_${id}_u8.bin`,
+      type: "uint8",
+      samples: [DENSITY_SAMPLES, DENSITY_SAMPLES],
+      cell_m: 50,
+      density_per_km2: definition.density_per_km2,
+      min_spacing_m: definition.min_spacing_m,
+      ...(definition.review ? { review: true } : {}),
+    };
+  }
+  return {
+    version: 1,
+    samples: [DENSITY_SAMPLES, DENSITY_SAMPLES],
+    cell_m: 50,
+    orientation: "row-major; row 0 is north; column 0 is west",
+    averaging: "rounded arithmetic mean of a centred 5 x 5 window from the 10 m master map",
+    resources,
+  };
+}
+
+function createIndex(binaryFileCount, binaryBytes, perLod, farBytes, auxiliaryFileCount = 0, auxiliaryBytes = 0) {
   const index = {
     version: 1,
     chunks: [CHUNKS_PER_SIDE, CHUNKS_PER_SIDE],
@@ -20,6 +65,8 @@ function createIndex(binaryFileCount, binaryBytes, perLod, farBytes, waterIndexB
       waterIndex: "water_index.json",
       farHeight: "far/height_u16.bin",
       farBiome: "far/biome_u8.bin",
+      density: "density/density_50m_<resource_id>_u8.bin",
+      densityIndex: "density/index.json",
       index: "index.json",
     },
     perLod,
@@ -32,12 +79,13 @@ function createIndex(binaryFileCount, binaryBytes, perLod, farBytes, waterIndexB
       bytes: farBytes,
     },
     totals: {
-      fileCount: binaryFileCount + 1,
+      fileCount: binaryFileCount + 1 + auxiliaryFileCount,
       bytes: 0,
       binaryFileCount,
       binaryBytes,
-      waterIndexBytes,
+      auxiliaryFileCount,
       includesIndexJson: true,
+      includesAuxiliaryJson: auxiliaryFileCount > 0,
     },
   };
 
@@ -45,17 +93,17 @@ function createIndex(binaryFileCount, binaryBytes, perLod, farBytes, waterIndexB
   // stable (the total's digit count is the only value that can affect it).
   let indexBytes = 0;
   for (let attempt = 0; attempt < 8; attempt += 1) {
-    index.totals.bytes = binaryBytes + waterIndexBytes + indexBytes;
+    index.totals.bytes = binaryBytes + auxiliaryBytes + indexBytes;
     const nextSize = jsonBytes(index).byteLength;
     if (nextSize === indexBytes) break;
     indexBytes = nextSize;
   }
-  index.totals.bytes = binaryBytes + waterIndexBytes + indexBytes;
+  index.totals.bytes = binaryBytes + auxiliaryBytes + indexBytes;
   const serialized = jsonBytes(index);
-  index.totals.bytes = binaryBytes + waterIndexBytes + serialized.byteLength;
+  index.totals.bytes = binaryBytes + auxiliaryBytes + serialized.byteLength;
   const finalSerialized = jsonBytes(index);
   if (finalSerialized.byteLength !== serialized.byteLength) {
-    index.totals.bytes = binaryBytes + waterIndexBytes + finalSerialized.byteLength;
+    index.totals.bytes = binaryBytes + auxiliaryBytes + finalSerialized.byteLength;
   }
   return { index, buffer: jsonBytes(index) };
 }
@@ -112,6 +160,23 @@ export async function writeTiles(outputDir, maps) {
   binary.fileCount += 2;
   binary.bytes += far.height.byteLength + far.biome.byteLength;
 
+  // The compact 50 m density maps keep resource placement cheap on phones.
+  const densityRoot = join(outputDir, "density");
+  await mkdir(densityRoot, { recursive: true });
+  const densityIndex = createDensityIndex(maps);
+  const densityIndexBuffer = jsonBytes(densityIndex);
+  let densityBytes = 0;
+  let densityFileCount = 0;
+  for (const [id, { buffer }] of Object.entries(maps.densityMaps ?? {})) {
+    const output = buildDensity50m(buffer);
+    await writeFile(join(densityRoot, `density_50m_${id}_u8.bin`), output);
+    densityBytes += output.byteLength;
+    densityFileCount += 1;
+  }
+  await writeFile(join(densityRoot, "index.json"), densityIndexBuffer);
+  binary.fileCount += densityFileCount;
+  binary.bytes += densityBytes;
+
   const waterIndexBuffer = jsonBytes(waterIndex);
   await writeFile(join(outputDir, "water_index.json"), waterIndexBuffer);
   const { index, buffer: indexBuffer } = createIndex(
@@ -119,24 +184,25 @@ export async function writeTiles(outputDir, maps) {
     binary.bytes,
     perLod,
     far.height.byteLength + far.biome.byteLength,
-    waterIndexBuffer.byteLength,
+    2,
+    densityIndexBuffer.byteLength + waterIndexBuffer.byteLength,
   );
   // Reconcile totals exactly with the bytes written, including index.json.
-  index.totals.fileCount = binary.fileCount + 2;
+  index.totals.fileCount = binary.fileCount + 3;
   index.totals.binaryFileCount = binary.fileCount;
   index.totals.binaryBytes = binary.bytes;
   index.totals.includesIndexJson = true;
   let indexBytes = indexBuffer.byteLength;
   for (let attempt = 0; attempt < 8; attempt += 1) {
-    index.totals.bytes = binary.bytes + waterIndexBuffer.byteLength + indexBytes;
+    index.totals.bytes = binary.bytes + densityIndexBuffer.byteLength + waterIndexBuffer.byteLength + indexBytes;
     const next = jsonBytes(index).byteLength;
     if (next === indexBytes) break;
     indexBytes = next;
   }
-  index.totals.bytes = binary.bytes + waterIndexBuffer.byteLength + indexBytes;
+  index.totals.bytes = binary.bytes + densityIndexBuffer.byteLength + waterIndexBuffer.byteLength + indexBytes;
   const finalIndexBuffer = jsonBytes(index);
   if (finalIndexBuffer.byteLength !== indexBytes) {
-    index.totals.bytes = binary.bytes + waterIndexBuffer.byteLength + finalIndexBuffer.byteLength;
+    index.totals.bytes = binary.bytes + densityIndexBuffer.byteLength + waterIndexBuffer.byteLength + finalIndexBuffer.byteLength;
   }
   const stableIndexBuffer = jsonBytes(index);
   await writeFile(join(outputDir, "index.json"), stableIndexBuffer);
@@ -144,12 +210,13 @@ export async function writeTiles(outputDir, maps) {
   return {
     binaryFileCount: binary.fileCount,
     binaryBytes: binary.bytes,
-    fileCount: binary.fileCount + 1,
-    totalBytes: binary.bytes + waterIndexBuffer.byteLength + stableIndexBuffer.byteLength,
+    fileCount: binary.fileCount + 3,
     waterChunksByLod: Object.fromEntries(LODS.map((lod) => [lod, waterIndex.lods[lod].length])),
     waterFileCount: Object.values(waterIndex.lods).reduce((sum, list) => sum + list.length, 0),
+    totalBytes: binary.bytes + densityIndexBuffer.byteLength + waterIndexBuffer.byteLength + stableIndexBuffer.byteLength,
     perLod,
     farBytes: far.height.byteLength + far.biome.byteLength,
     indexBytes: stableIndexBuffer.byteLength,
+    densityIndexBytes: densityIndexBuffer.byteLength,
   };
 }

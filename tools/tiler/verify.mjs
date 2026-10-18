@@ -9,7 +9,7 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const inputDir = join(repoRoot, "public", "terrain", "great_lakes");
 const tileRoot = join(inputDir, "tiles");
 const errors = [];
-const checks = { chunkFiles: 0, neighbourEdges: 0, corners: 0 };
+const checks = { chunkFiles: 0, neighbourEdges: 0, corners: 0, densityFiles: 0, densitySamples: 0 };
 
 function fail(message) {
   errors.push(message);
@@ -52,6 +52,18 @@ function masterHeight(maps, x, y) {
 }
 function masterBiome(maps, x, y) {
   return maps.biomeBuffer[y * GRID_SAMPLES + x];
+}
+
+function expectedDensity50m(source, row, col) {
+  let total = 0;
+  for (let dy = -2; dy <= 2; dy += 1) {
+    const sourceRow = Math.max(0, Math.min(2000, row * 5 + dy));
+    for (let dx = -2; dx <= 2; dx += 1) {
+      const sourceCol = Math.max(0, Math.min(2000, col * 5 + dx));
+      total += source[sourceRow * GRID_SAMPLES + sourceCol];
+    }
+  }
+  return Math.round(total / 25);
 }
 
 async function checkLod(maps, quads) {
@@ -213,6 +225,49 @@ async function main() {
   for (const quads of LODS) await checkLod(maps, quads);
   await checkWaterTiles(maps);
 
+  const densityRoot = join(tileRoot, "density");
+  let densityIndex;
+  try {
+    densityIndex = JSON.parse(await readFile(join(densityRoot, "index.json"), "utf8"));
+  } catch (error) {
+    fail(`Missing or invalid tiles/density/index.json: ${error.message}`);
+  }
+  if (densityIndex) {
+    if (densityIndex.samples?.[0] !== 401 || densityIndex.samples?.[1] !== 401) {
+      fail("tiles/density/index.json samples must be [401,401]");
+    }
+    if (densityIndex.cell_m !== 50) fail("tiles/density/index.json cell_m must be 50");
+    for (const [id, { definition, buffer: source }] of Object.entries(maps.densityMaps ?? {})) {
+      const fileName = `density_50m_${id}_u8.bin`;
+      const filePath = join(densityRoot, fileName);
+      const output = await readFile(filePath).catch(() => null);
+      if (!output || output.byteLength !== 401 * 401) {
+        fail(`tiles/density/${fileName}: expected ${401 * 401} bytes`);
+        continue;
+      }
+      checks.densityFiles += 1;
+      const entry = densityIndex.resources?.[id];
+      if (!entry) fail(`tiles/density/index.json is missing resource ${id}`);
+      else {
+        if (entry.file !== fileName) fail(`density index file mismatch for ${id}`);
+        if (entry.density_per_km2 !== definition.density_per_km2) fail(`density_per_km2 mismatch for ${id}`);
+        if (entry.min_spacing_m !== definition.min_spacing_m) fail(`min_spacing_m mismatch for ${id}`);
+        if (entry.samples?.[0] !== 401 || entry.samples?.[1] !== 401) fail(`sample dimensions mismatch for ${id}`);
+      }
+      for (let row = 0; row < 401; row += 1) {
+        for (let col = 0; col < 401; col += 1) {
+          const expected = expectedDensity50m(source, row, col);
+          if (output[row * 401 + col] !== expected) {
+            fail(`density map ${id} sample (${col},${row}) differs from expected 5 x 5 average`);
+            row = 401;
+            break;
+          }
+          checks.densitySamples += 1;
+        }
+      }
+    }
+  }
+
   const farHeightPath = join(tileRoot, "far", "height_u16.bin");
   const farBiomePath = join(tileRoot, "far", "biome_u8.bin");
   const farHeight = await readFile(farHeightPath).catch(() => null);
@@ -266,6 +321,7 @@ async function main() {
   console.log(`Checked ${checks.chunkFiles.toLocaleString("en-US")} chunk files across all LODs.`);
   console.log(`Checked ${checks.neighbourEdges.toLocaleString("en-US")} horizontal/vertical neighbour edges.`);
   console.log(`Checked ${checks.corners.toLocaleString("en-US")} chunk corners against the master maps.`);
+  console.log(`Checked ${checks.densityFiles.toLocaleString("en-US")} compact density maps and ${checks.densitySamples.toLocaleString("en-US")} box-average samples.`);
   console.log(`Checked far-view sample grid and all ${allFiles.length.toLocaleString("en-US")} output files (${actualBytes.toLocaleString("en-US")} bytes).`);
   console.log(`SHA256(sorted relative paths + file SHA256s): ${digest}`);
 }
