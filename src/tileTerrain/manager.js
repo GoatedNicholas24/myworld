@@ -1,5 +1,6 @@
 import { TileCache, bilinearRaw, decodeElevation } from "./tileCache.js";
 import { createFarMesh, createTileMesh, updateTileNormals } from "./geometry.js";
+import { createWaterSystem } from "./water.js";
 
 const WORLD_SIZE = 20000;
 const WORLD_HALF = WORLD_SIZE / 2;
