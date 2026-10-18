@@ -218,7 +218,7 @@ export async function createWaterSystem({ THREE, terrain, terrainRoot, quality }
     buildChunk,
     update(delta) { elapsed += delta; material.uniforms.uTime.value = elapsed; },
     setQuality(next) { currentQuality = next; },
-    waterSurfaceAt(x, z, activeTiles) { return surfaceFromActiveTiles(x, z, activeTiles); },
+    waterSurfaceAt(x, z, activeTiles) { const surface = surfaceFromActiveTiles(x, z, activeTiles); if (surface !== null) return surface; const nearest = nearestRiver(x, z); return nearest && nearest.distance === 0 ? nearest.node.y : null; },
     waterDepthAt(x, z, activeTiles) {
       const surface = surfaceFromActiveTiles(x, z, activeTiles);
       const wideDepth = surface === null ? 0 : Math.max(0, surface - terrain.heightAt(x, z));
