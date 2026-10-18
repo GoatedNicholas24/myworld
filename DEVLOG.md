@@ -1,5 +1,27 @@
 # Dev Log
 
+## 2026-10-16: Terrain master maps (generator)
+
+**What was built**
+- `tools/terrain/` generates the 2001 x 2001 master heightmap (10 m cells) for the 20 km Great Lakes region: landmark-driven landforms, stream-power erosion, flow-routed rivers, then slope, wetness, rock and river-distance maps.
+- Applies ChatGPT's `data/biomes.json` and `data/resource_rules.json` to produce `biome_u8.bin` and one density map per resource, plus `terrain.json`.
+- About 70 seconds on a normal CPU, byte-identical for the same seed.
+
+**Numbers**
+- Elevation 930-5200 m; all nine landmark means inside their design ranges.
+- Biome shares: savannah 33%, woodland 21%, highland forest 17%, farmland 10%, alpine moorland 6%, cliffs 4%, forest plateau 3%, wetland 2%, snow/rock 1.4%, scrub 1.7%.
+- 76 MB of maps, kept out of git; regenerate with `python3 tools/terrain/generate.py`.
+
+**Known problems**
+- No lakes yet (a later layer). Smallest streams missing. One faint straight scarp near x = 6.5 km.
+
+**Files changed**
+- New: `tools/terrain/*`, `public/terrain/great_lakes/terrain.json`
+- Changed: `.gitignore` (removed the stray `data/` rule that would have hidden new data files; added generated maps)
+
+**Next step**
+- T004 (tiler, Copilot) reads these maps and cuts the 250 m chunks.
+
 ## 2026-10-14 (session 3): First village
 
 **What was built**
@@ -92,3 +114,19 @@
 
 **Next step**
 - Add layered distant hills (simple silhouettes in code) fading into the fog, to give the horizon depth and a more Firewatch-like look.
+## 2026-10-17: Water data (lakes and rivers)
+
+**What was built**
+- `tools/terrain/water.py`: four lakes (one large, three smaller) and a river network from wadable streams (2.4 m wide) up to one Nile-class river (300 m wide, 8 m deep). Channels and lake basins are carved into the heightmap.
+- New outputs: `rivers.json` (committed), `water_level_u16.bin`, a `water` section in `terrain.json`. Format in `docs/WATER_DATA.md`.
+- `tools/terrain/verify_water.py` reads the files back and checks them (all pass); two runs give identical files.
+
+**Changed**
+- Heightmap, wetness, biome and density maps changed (carved water, wetland under water, no resources under water). Regenerate and re-run the tiler.
+- Old river code removed from `derive.py`; `priority_flood` accepts a per-cell eps.
+
+**Known problems**
+- Not yet drawn in the game (T011). Streams are narrower than the 10 m terrain cells.
+
+**Next step**
+- T011: draw the water from `rivers.json`.

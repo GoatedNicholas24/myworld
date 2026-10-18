@@ -1,0 +1,258 @@
+{
+  "biomes": [
+    {
+      "id": "snow_rock_peaks",
+      "name": "Snow and Rock Peaks",
+      "priority": 1.5,
+      "paint": "#e5e6e4",
+      "conditions": [
+        {
+          "map": "elevation_m",
+          "min": 4300,
+          "max": 5200,
+          "fade": 350
+        },
+        {
+          "map": "rock",
+          "min": 0.45,
+          "max": 1,
+          "fade": 0.25
+        }
+      ]
+    },
+    {
+      "id": "alpine_moorland",
+      "name": "Alpine Moorland",
+      "priority": 1.2,
+      "paint": "#9a9a73",
+      "conditions": [
+        {
+          "map": "elevation_m",
+          "min": 3000,
+          "max": 4600,
+          "fade": 350
+        },
+        {
+          "map": "wetness",
+          "min": 0.2,
+          "max": 0.9,
+          "fade": 0.2
+        }
+      ]
+    },
+    {
+      "id": "highland_forest",
+      "name": "Highland Forest",
+      "priority": 1.1,
+      "paint": "#426c4b",
+      "conditions": [
+        {
+          "map": "elevation_m",
+          "min": 1700,
+          "max": 3300,
+          "fade": 350
+        },
+        {
+          "map": "wetness",
+          "min": 0.48,
+          "max": 1,
+          "fade": 0.2
+        },
+        {
+          "map": "slope",
+          "min": 0,
+          "max": 0.72,
+          "fade": 0.15
+        }
+      ]
+    },
+    {
+      "id": "forest_plateau",
+      "name": "Forest Plateau",
+      "priority": 1.1,
+      "paint": "#557c4d",
+      "conditions": [
+        {
+          "map": "elevation_m",
+          "min": 1350,
+          "max": 2400,
+          "fade": 300
+        },
+        {
+          "map": "wetness",
+          "min": 0.48,
+          "max": 1,
+          "fade": 0.22
+        },
+        {
+          "map": "noise:plateau",
+          "min": 0.45,
+          "max": 1,
+          "fade": 0.25
+        },
+        {
+          "map": "slope",
+          "min": 0,
+          "max": 0.5,
+          "fade": 0.15
+        }
+      ]
+    },
+    {
+      "id": "woodland",
+      "name": "Woodland",
+      "priority": 1,
+      "paint": "#7c8a4d",
+      "conditions": [
+        {
+          "map": "elevation_m",
+          "min": 1000,
+          "max": 2600,
+          "fade": 350
+        },
+        {
+          "map": "wetness",
+          "min": 0.3,
+          "max": 0.72,
+          "fade": 0.2
+        },
+        {
+          "map": "rock",
+          "min": 0,
+          "max": 0.75,
+          "fade": 0.2
+        }
+      ]
+    },
+    {
+      "id": "savannah_grassland",
+      "name": "Savannah Grassland",
+      "priority": 0.95,
+      "paint": "#c1a65e",
+      "conditions": [
+        {
+          "map": "elevation_m",
+          "min": 930,
+          "max": 1900,
+          "fade": 250
+        },
+        {
+          "map": "wetness",
+          "min": 0.05,
+          "max": 0.55,
+          "fade": 0.2
+        },
+        {
+          "map": "slope",
+          "min": 0,
+          "max": 0.55,
+          "fade": 0.15
+        }
+      ]
+    },
+    {
+      "id": "farmland_valley",
+      "name": "Farmland Valley",
+      "priority": 1.25,
+      "paint": "#a9a75b",
+      "conditions": [
+        {
+          "map": "elevation_m",
+          "min": 930,
+          "max": 1700,
+          "fade": 200
+        },
+        {
+          "map": "slope",
+          "min": 0,
+          "max": 0.18,
+          "fade": 0.08
+        },
+        {
+          "map": "wetness",
+          "min": 0.28,
+          "max": 0.82,
+          "fade": 0.18
+        },
+        {
+          "map": "river_dist_m",
+          "min": 80,
+          "max": 1800,
+          "fade": 100
+        }
+      ]
+    },
+    {
+      "id": "wetland_river_bank",
+      "name": "Wetland and River Bank",
+      "priority": 1.4,
+      "paint": "#648d78",
+      "conditions": [
+        {
+          "map": "wetness",
+          "min": 0.68,
+          "max": 1,
+          "fade": 0.15
+        },
+        {
+          "map": "river_dist_m",
+          "min": 0,
+          "max": 180,
+          "fade": 80
+        }
+      ]
+    },
+    {
+      "id": "rift_escarpment_cliffs",
+      "name": "Rift Escarpment Cliffs",
+      "priority": 1.35,
+      "paint": "#8a7165",
+      "conditions": [
+        {
+          "map": "slope",
+          "min": 0.48,
+          "max": 10,
+          "fade": 0.12
+        },
+        {
+          "map": "rock",
+          "min": 0.55,
+          "max": 1,
+          "fade": 0.2
+        },
+        {
+          "map": "elevation_m",
+          "min": 1100,
+          "max": 3000,
+          "fade": 400
+        }
+      ]
+    },
+    {
+      "id": "scrub_slopes",
+      "name": "Scrub Slopes",
+      "priority": 0.85,
+      "paint": "#827d5b",
+      "conditions": [
+        {
+          "map": "elevation_m",
+          "min": 930,
+          "max": 3300,
+          "fade": 400
+        },
+        {
+          "map": "slope",
+          "min": 0.2,
+          "max": 1.5,
+          "fade": 0.2
+        },
+        {
+          "map": "rock",
+          "min": 0.1,
+          "max": 0.7,
+          "fade": 0.25
+        }
+      ]
+    }
+  ]
+}

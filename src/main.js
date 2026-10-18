@@ -19,11 +19,20 @@ import { createMoodController } from "./moodController.js";
 import { createControls } from "./controls.js";
 import { createMapView } from "./map.js";
 import "./style.css";
+import { startGreatLakesWorld } from "./tileTerrain/start.js";
 
 // The engine's entry point. Everything about how the world looks comes from
 // worlds/karamoja/ (world.json, map.json, local.json). This file only wires
 // the pieces together.
 
+const requestedWorld = new URLSearchParams(window.location.search).get("world") || "karamoja";
+if (requestedWorld === "great_lakes") {
+  startGreatLakesWorld(loadWorld(requestedWorld)).catch((error) => {
+    console.error("Great Lakes terrain failed to start:", error);
+    const hud = document.querySelector("#hud");
+    if (hud) hud.textContent = "Great Lakes terrain failed to load: " + error.message;
+  });
+} else {
 const world = loadWorld("karamoja");
 const map = loadMap("karamoja");
 const local = loadLocal("karamoja");
@@ -178,3 +187,4 @@ function frame(now) {
 }
 
 requestAnimationFrame(frame);
+}
