@@ -338,6 +338,7 @@ export async function createTileTerrain({ THREE, world, quality }) {
   function setQuality(nextQuality) {
     if (nextQuality.name === currentQuality.name) return;
     currentQuality = nextQuality;
+    waterSystem.setQuality(nextQuality);
     replaceFarMesh();
     forcePlan = true;
   }
