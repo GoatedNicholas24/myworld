@@ -41,6 +41,15 @@ export async function createTileTerrain({ THREE, world, quality }) {
     throw new Error(`${metadataUrl} does not list biome paint colours`);
   }
 
+  let waterIndex = { lods: {} };
+  try {
+    const response = await fetch(tileRoot + "/water_index.json");
+    if (response.ok) waterIndex = await response.json();
+  } catch (error) {
+    console.warn("water: water index unavailable; water tiles skipped.", error.message);
+  }
+  const waterChunks = new Map([64, 32, 16, 8].map((lod) => [lod, new Set((waterIndex.lods?.[lod] ?? []).map(([i, j]) => i + "," + j))]));
+
   const farHeightUrl = `${tileRoot}/far/height_u16.bin`;
   const farBiomeUrl = `${tileRoot}/far/biome_u8.bin`;
   const [farHeightBuffer, farBiomeBuffer] = await Promise.all([
