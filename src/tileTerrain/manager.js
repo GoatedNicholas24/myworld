@@ -348,7 +348,10 @@ export async function createTileTerrain({ THREE, world, quality }) {
   function dispose() {
     for (const entry of pending.values()) entry.controller.abort();
     pending.clear();
-    for (const record of active.values()) record.mesh.geometry.dispose();
+    for (const record of active.values()) {
+      record.mesh.geometry.dispose();
+      for (const water of record.waterRecords ?? []) for (const mesh of water.meshes ?? [water.mesh]) if (mesh) mesh.geometry.dispose();
+    }
     active.clear();
     if (farMeshRecord) farMeshRecord.mesh.geometry.dispose();
     cache.clear();
