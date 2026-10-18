@@ -109,6 +109,7 @@ export async function createTileTerrain({ THREE, world, quality }) {
   function disposeRecord(record) {
     group.remove(record.mesh);
     record.mesh.geometry.dispose();
+    for (const waterRecord of record.waterRecords ?? []) for (const mesh of waterRecord.meshes ?? [waterRecord.mesh]) { if (mesh) { group.remove(mesh); mesh.geometry.dispose(); } }
     active.delete(activeKey(record.i, record.j));
     for (const neighbour of [
       neighbourFor(record.i - 1, record.j, record.lod),
