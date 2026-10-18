@@ -371,5 +371,6 @@ export async function createTileTerrain({ THREE, world, quality }) {
       for (const record of active.values()) total += record.triangles;
       return total;
     },
+    getWaterTriangleCount() { return [...active.values()].reduce((sum, record) => sum + (record.waterRecords ?? []).reduce((n, water) => n + (water.triangles ?? 0), 0), 0); },
   };
 }
