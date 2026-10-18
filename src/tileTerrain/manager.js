@@ -177,7 +177,7 @@ export async function createTileTerrain({ THREE, world, quality }) {
       const controller = new AbortController();
       const entry = { lod: wanted.lod, controller };
       pending.set(key, entry);
-      cache.load(tileRoot, wanted.i, wanted.j, wanted.lod, controller.signal)
+      cache.load(tileRoot, wanted.i, wanted.j, wanted.lod, controller.signal, waterChunks.get(wanted.lod).has(wanted.i + "," + wanted.j))
         .then((tile) => {
           if (pending.get(key) !== entry) return;
           pending.delete(key);
