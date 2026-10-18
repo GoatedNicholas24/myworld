@@ -92,6 +92,9 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
       const fps = Math.round(frames / hudTime);
       frames = 0;
       hudTime = 0;
+      const riverDistance = tileWorld.terrain.distanceToRiverAt(camera.position.x, camera.position.z);
+      const waterDepth = tileWorld.terrain.waterDepthAt(camera.position.x, camera.position.z);
+      const waterNote = controls.getWaterStatus?.().note || "";
       hud.textContent =
         `${world.name} · ${moodController.label()}\n` +
         `Quality: ${quality.name} · ${renderer.info.render.triangles.toLocaleString("en-US")} triangles · ${fps} fps\n` +
