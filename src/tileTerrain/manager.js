@@ -315,6 +315,10 @@ export async function createTileTerrain({ THREE, world, quality }) {
       const tile = task.tile ?? cache.get(task.i, task.j, task.lod);
       if (!tile) continue;
       const record = createTileMesh(THREE, tile, paintColors, material, neighbourFor);
+      record.waterRecords = waterSystem.buildChunk(tile, camera);
+      for (const waterRecord of record.waterRecords) {
+        for (const mesh of waterRecord.meshes ?? [waterRecord.mesh]) if (mesh) group.add(mesh);
+      }
       active.set(task.key, record);
       group.add(record.mesh);
       refreshLocalNormals(record);
