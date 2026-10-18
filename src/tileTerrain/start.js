@@ -6,6 +6,7 @@ import { createLightingUniforms, parseMood } from "../mood.js";
 import { createMoodController } from "../moodController.js";
 import { createControls } from "../controls.js";
 import { createTileTerrain } from "./manager.js";
+import { createWaterMapOverlay } from "./waterMapOverlay.js";
 
 // Game coordinates follow the existing engine: +x is east, -z is north, and
 // Three.js y is elevation. Master row 0 (north) maps to z=-10000; column 0
@@ -28,6 +29,9 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
   const camera = new THREE.PerspectiveCamera(world.camera.fov, 1, 0.2, 30000);
   const lighting = createLightingUniforms();
   const tileWorld = await createTileTerrain({ THREE, world, quality });
+  let waterMap = null;
+  try { waterMap = await createWaterMapOverlay({ terrainRoot: world.terrain.tileRoot.replace(/\/tiles$/, ""), tileRoot: world.terrain.tileRoot, camera }); }
+  catch (error) { console.warn("water map unavailable:", error.message); }
   const controls = createControls(camera, renderer.domElement, tileWorld.terrain, world.camera);
   const sky = createSky(lighting);
   scene.add(sky.mesh, tileWorld.group);
@@ -77,7 +81,8 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
 
     controls.update(delta);
     moodController.update(delta);
-    tileWorld.update(camera);
+    tileWorld.update(camera, delta);
+    waterMap?.update();
     sky.update(camera);
     renderer.render(scene, camera);
 
