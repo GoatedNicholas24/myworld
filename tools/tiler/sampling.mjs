@@ -95,3 +95,5 @@ export function buildFarBuffers(heightMaster, biomeMaster) {
   }
   return { height: heightOut, biome: biomeOut };
 }
+
+// Water sampling helpers follow the same deterministic grid arithmetic as terrain.
