@@ -64,8 +64,9 @@ function buildWideWater(THREE, tile, terrain, material) {
       const n = row * stride + col;
       const x = -HALF + tile.i * CHUNK + col / q * CHUNK;
       const z = -HALF + tile.j * CHUNK + row / q * CHUNK;
-      const raw = tile.water[n];
-      const ground = decodeElevation(tile.heights[n]);
+      const sourceIndex = Math.round(row * sourceStep) * sourceStride + Math.round(col * sourceStep);
+      const raw = tile.water[sourceIndex];
+      const ground = decodeElevation(tile.heights[sourceIndex]);
       const surface = raw ? decodeElevation(raw) : 0;
       const depth = surface - ground;
       positions[n * 3] = x;
