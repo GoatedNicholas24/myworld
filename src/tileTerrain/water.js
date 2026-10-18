@@ -167,12 +167,15 @@ export async function createWaterSystem({ THREE, terrain, terrainRoot, quality }
   const material = makeMaterial(THREE, 0.82);
   const bankMaterial = new THREE.MeshBasicMaterial({ color: "#514a3b", side: THREE.DoubleSide });
   let rivers = [];
+  let lakes = [];
   let currentQuality = quality;
   let elapsed = 0;
   try {
     const response = await fetch(`${terrainRoot}/rivers.json`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    rivers = (await response.json()).rivers ?? [];
+    const riverData = await response.json();
+    rivers = riverData.rivers ?? [];
+    lakes = riverData.lakes ?? [];
   } catch (error) {
     console.warn("water: rivers.json is unavailable; wide water tiles can still render.", error.message);
   }
@@ -214,6 +217,7 @@ export async function createWaterSystem({ THREE, terrain, terrainRoot, quality }
   }
   return {
     rivers,
+    lakes,
     riverNodes,
     buildChunk,
     update(delta) { elapsed += delta; material.uniforms.uTime.value = elapsed; },
