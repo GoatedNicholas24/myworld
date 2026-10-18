@@ -287,14 +287,16 @@ export async function createTileTerrain({ THREE, world, quality }) {
   }
 
   const terrain = {
-    heightAt,
-    soilAt: () => 0,
-    sandAt: () => 0,
-    clearingAt: () => 0,
-    grassCoverAt: () => 0,
-    lakes: [],
-    sandColor: "#8b8a68",
+    heightAt, soilAt: () => 0, sandAt: () => 0, clearingAt: () => 0, grassCoverAt: () => 0,
+    lakes: [], sandColor: "#8b8a68",
+    isWaterAt: (x, z) => waterSystem.waterSurfaceAt(x, z, active) !== null,
+    waterSurfaceAt: (x, z) => waterSystem.waterSurfaceAt(x, z, active),
+    waterDepthAt: (x, z) => waterSystem.waterDepthAt(x, z, active),
+    distanceToRiverAt: (x, z) => waterSystem.distanceToRiverAt(x, z),
+    rivers: [],
   };
+  const waterSystem = await createWaterSystem({ THREE, terrain, terrainRoot, quality });
+  terrain.rivers = waterSystem.rivers;
 
   function update(camera) {
     if (
