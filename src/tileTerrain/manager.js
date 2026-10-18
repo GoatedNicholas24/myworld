@@ -327,6 +327,7 @@ export async function createTileTerrain({ THREE, world, quality }) {
       statsDirty = true;
     }
 
+    waterSystem.update(delta);
     pumpFetches();
     if (statsDirty) {
       printStats();
