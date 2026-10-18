@@ -16,6 +16,8 @@ function createIndex(binaryFileCount, binaryBytes, perLod, farBytes, waterIndexB
     fileNames: {
       height: "lod_<quads>/chunk_<i>_<j>/height_u16.bin",
       biome: "lod_<quads>/chunk_<i>_<j>/biome_u8.bin",
+      water: "lod_<quads>/chunk_<i>_<j>/water_u16.bin (wet chunks only)",
+      waterIndex: "water_index.json",
       farHeight: "far/height_u16.bin",
       farBiome: "far/biome_u8.bin",
       index: "index.json",
