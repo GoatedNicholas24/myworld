@@ -109,7 +109,6 @@ function buildWideWater(THREE, tile, terrain, material) {
 }
 
 function buildRibbon(THREE, reach, tile, terrain, material, bankMaterial, radius, camera) {
-  if (reach.class === "great" || reach.class === "large" || reach.class === "medium") return null;
   const left = [], right = [], bankLeft = [], bankRight = [], colors = [], uv = [], indices = [], bankIndices = [];
   const x0 = -HALF + tile.i * CHUNK, z0 = -HALF + tile.j * CHUNK;
   const x1 = x0 + CHUNK, z1 = z0 + CHUNK;
@@ -117,6 +116,7 @@ function buildRibbon(THREE, reach, tile, terrain, material, bankMaterial, radius
   let lastAlong = 0;
   for (let n = 0; n < nodes.length; n += 1) {
     const p = nodes[n];
+    if (p[3] >= 40) continue;
     if (Math.hypot(p[0] - camera.position.x, p[1] - camera.position.z) > radius + p[3]) continue;
     if (p[0] < x0 - p[3] || p[0] > x1 + p[3] || p[1] < z0 - p[3] || p[1] > z1 + p[3]) continue;
     const prev = nodes[Math.max(0, n - 1)], next = nodes[Math.min(nodes.length - 1, n + 1)];
