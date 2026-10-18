@@ -98,7 +98,8 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
       hud.textContent =
         `${world.name} · ${moodController.label()}\n` +
         `Quality: ${quality.name} · ${renderer.info.render.triangles.toLocaleString("en-US")} triangles · ${fps} fps\n` +
-        `Drag = look · WASD = walk · Shift = faster\n` +
+        `River: ${riverDistance == null ? "n/a" : Math.round(riverDistance) + " m"} · depth: ${waterDepth.toFixed(1)} m ${waterNote}\n` +
+        `Drag = look · WASD = walk · Shift = faster · N = minimap · M = map\n` +
         `1-4 = mood · Q = quality`;
     }
   }
