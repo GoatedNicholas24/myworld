@@ -86,8 +86,6 @@ export async function writeTiles(outputDir, maps) {
           waterIndex.lods[quads].push([i, j]);
           lodFileCount += 1;
           lodBytes += water.byteLength;
-          binary.fileCount += 1;
-          binary.bytes += water.byteLength;
         }
       }
       if ((j + 1) % 10 === 0) {
