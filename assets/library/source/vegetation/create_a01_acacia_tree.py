@@ -7,7 +7,7 @@ random.seed(137)
 text_block = bpy.context.space_data.text if bpy.context.space_data and bpy.context.space_data.type == "TEXT_EDITOR" else None
 if not text_block or not text_block.filepath:
     raise RuntimeError("Save this script in its project path before running.")
-script_path = Path(bpy.path.abspath(text_block.filepath)).resolve()
+script_path = Path(globals().get("MY_WORLD_SCRIPT_PATH", bpy.path.abspath(text_block.filepath))).resolve()
 root = script_path.parents[4]
 if not (root / "package.json").exists():
     raise RuntimeError(f"My World repository not found: {root}")
@@ -95,6 +95,15 @@ for i,(s,e,r) in enumerate([
 ((0,0,2.8),(-0.7,0.5,4.35),0.10),((0.1,0,2.9),(0.8,-0.5,4.4),0.10),
 ((-1.3,0.04,3.5),(-2.1,0.2,4.05),0.07),((1.25,0.03,3.55),(2.15,0.2,4.0),0.07)]):
     beam(f"A01_Branch_{i:02d}", s, e, r, bark_light if i%3==0 else bark)
+pivots = {}
+for pivot_name, pivot_x in [("A01_Pivot_Left", -1.0), ("A01_Pivot_Center", 0.0), ("A01_Pivot_Right", 1.0)]:
+    pivot = bpy.data.objects.new(pivot_name, None)
+    collection.objects.link(pivot)
+    pivot.location = (pivot_x, 0, 3.8)
+    pivot.empty_display_type = "SPHERE"
+    pivot.empty_display_size = 0.10
+    pivots[pivot_name] = pivot
+
 for i in range(34):
     angle = random.random()*math.tau
     x = math.cos(angle)*random.uniform(0.25,2.05)
@@ -102,10 +111,10 @@ for i in range(34):
     z = random.uniform(3.85,4.65) - 0.23*abs(x)
     size = random.uniform(0.32,0.67)
     obj = ico(f"A01_Canopy_{i:02d}", (x,y,z), (size*1.25,size,size*0.48), random.choice(leaf), 2)
-    pivot = bpy.data.objects.get("A01_Pivot_Left" if x < -0.65 else "A01_Pivot_Right" if x > 0.65 else "A01_Pivot_Center")
-    if pivot is None:
-        pivot = bpy.data.objects.new("A01_Pivot_Center", None); collection.objects.link(pivot); pivot.location=(0,0,3.8)
+    pivot = pivots["A01_Pivot_Left" if x < -0.65 else "A01_Pivot_Right" if x > 0.65 else "A01_Pivot_Center"]
+    world_matrix = obj.matrix_world.copy()
     obj.parent = pivot
+    obj.matrix_world = world_matrix
 # Bark ridges on trunk face
 for i in range(12):
     x = random.uniform(-0.19,0.19); z=random.uniform(0.35,2.5)
