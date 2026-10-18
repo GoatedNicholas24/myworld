@@ -73,6 +73,14 @@ export async function loadMasterMaps(inputDir) {
     readRequiredFile(biomePath, sampleCount),
   ]);
 
+  const densityDefinitions = terrain.resource_density ?? {};
+  const densityMaps = {};
+  for (const [id, definition] of Object.entries(densityDefinitions)) {
+    assert(typeof definition.file === "string", `${terrainPath} resource_density.${id} is missing file.`);
+    const buffer = await readRequiredFile(join(inputDir, definition.file), sampleCount);
+    densityMaps[id] = { definition, buffer };
+  }
+
   let minElevationM = Infinity;
   let maxElevationM = -Infinity;
   for (let offset = 0; offset < heightBuffer.length; offset += 2) {
@@ -86,6 +94,7 @@ export async function loadMasterMaps(inputDir) {
     terrain,
     heightBuffer,
     biomeBuffer,
+    densityMaps,
     heightPath,
     biomePath,
     minElevationM,

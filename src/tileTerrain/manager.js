@@ -354,6 +354,7 @@ export async function createTileTerrain({ THREE, world, quality }) {
       printStats();
       statsDirty = false;
     }
+    return built;
   }
 
   function setQuality(nextQuality) {
@@ -382,6 +383,9 @@ export async function createTileTerrain({ THREE, world, quality }) {
     terrain,
     mapData: { metadata, farHeights, farBiomes },
     update,
+    getActiveChunks() {
+      return [...active.values()];
+    },
     setQuality,
     dispose,
     getTriangleCount() {
