@@ -221,7 +221,7 @@ export async function createWaterSystem({ THREE, terrain, terrainRoot, quality }
       const wideDepth = surface === null ? 0 : Math.max(0, surface - terrain.heightAt(x, z));
       if (wideDepth > 0) return wideDepth;
       const nearest = nearestRiver(x, z);
-      return nearest && nearest.distance <= nearest.node.width / 2 ? nearest.node.depth : 0;
+      return nearest && nearest.distance === 0 ? nearest.node.depth : 0;
     },
     distanceToRiverAt(x, z) { const nearest = nearestRiver(x, z); return nearest ? nearest.distance : null; },
     dispose() { material.dispose(); bankMaterial.dispose(); },
