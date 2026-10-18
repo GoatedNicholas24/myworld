@@ -50,6 +50,8 @@ function riverColor(THREE, depth) {
 function buildWideWater(THREE, tile, terrain, material) {
   if (!tile.water) return null;
   const q = tile.lod > 32 ? 32 : tile.lod;
+  const sourceStride = tile.lod + 1;
+  const sourceStep = tile.lod / q;
   const stride = q + 1;
   const count = stride * stride;
   const positions = new Float32Array(count * 3);
