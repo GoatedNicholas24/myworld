@@ -1,4 +1,5 @@
 import vegetationData from "../../data/vegetation.json";
+import { decodeElevation } from "./tileCache.js";
 
 const WORLD_HALF = 10000;
 const WORLD_SIZE = 20000;

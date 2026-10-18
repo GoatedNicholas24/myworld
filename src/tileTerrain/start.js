@@ -111,7 +111,7 @@ export async function startGreatLakesWorld(world = loadWorld("great_lakes")) {
     controls.update(delta);
     moodController.update(delta);
     const terrainBuilds = tileWorld.update(camera, delta);
-    livingGround.update(camera, tileWorld.getActiveChunks(), Math.max(0, 2 - terrainBuilds));
+    livingGround.update(camera, tileWorld.getActiveChunks(), Math.max(1, 2 - terrainBuilds));
     mapView.update();
     sky.update(camera);
     renderer.render(scene, camera);
