@@ -50,9 +50,10 @@ export class TileCache {
     const directory = `${root}/lod_${lod}/chunk_${i}_${j}`;
     const heightUrl = `${directory}/height_u16.bin`;
     const biomeUrl = `${directory}/biome_u8.bin`;
-    const [heightBuffer, biomeBuffer] = await Promise.all([
+    const [heightBuffer, biomeBuffer, waterBuffer] = await Promise.all([
       fetchArrayBuffer(heightUrl, signal),
       fetchArrayBuffer(biomeUrl, signal),
+      hasWater ? fetchArrayBuffer(directory + "/water_u16.bin", signal) : Promise.resolve(null),
     ]);
 
     const heightExpected = expectedBytes(lod, "height");
