@@ -12,6 +12,7 @@ export function createControls(camera, element, terrain, settings) {
   let dragging = false;
   let lastX = 0;
   let lastY = 0;
+  let waterStatus = { depth: 0, note: "" };
 
   camera.rotation.order = "YXZ";
   camera.position.set(
@@ -67,8 +68,21 @@ export function createControls(camera, element, terrain, settings) {
       const f = forward / length;
       const s = strafe / length;
 
-      camera.position.x += (-sin * f + cos * s) * speed * delta;
-      camera.position.z += (-cos * f - sin * s) * speed * delta;
+      const moveX = (-sin * f + cos * s) * speed * delta;
+      const moveZ = (-cos * f - sin * s) * speed * delta;
+      const nextX = camera.position.x + moveX;
+      const nextZ = camera.position.z + moveZ;
+      const depth = terrain.waterDepthAt ? terrain.waterDepthAt(nextX, nextZ) : 0;
+      if (depth > 1.2) {
+        waterStatus = { depth, note: "Too deep to cross" };
+      } else {
+        const wading = depth > 0.4;
+        const scale = wading ? 0.6 : 1;
+        camera.position.x = nextX;
+        camera.position.z = nextZ;
+        waterStatus = { depth, note: wading ? `Wading · ${depth.toFixed(1)} m` : "" };
+        if (scale < 1) { camera.position.x -= moveX * (1 - scale); camera.position.z -= moveZ * (1 - scale); }
+      }
 
       // Stay inside the walkable circle so you never reach the edge of the ground.
       const distance = Math.hypot(camera.position.x, camera.position.z);
@@ -86,5 +100,5 @@ export function createControls(camera, element, terrain, settings) {
     camera.rotation.set(pitch, yaw, 0);
   }
 
-  return { update };
+  return { update, getWaterStatus: () => waterStatus };
 }
