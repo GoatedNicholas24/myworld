@@ -299,7 +299,7 @@ export async function createTileTerrain({ THREE, world, quality }) {
   const waterSystem = await createWaterSystem({ THREE, terrain, terrainRoot, quality });
   terrain.rivers = waterSystem.rivers;
 
-  function update(camera) {
+  function update(camera, delta = 0) {
     if (
       forcePlan ||
       !Number.isFinite(lastPlanX) ||
