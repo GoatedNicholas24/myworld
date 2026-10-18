@@ -5,10 +5,18 @@ function expectedBytes(quads, kind) {
   return samples * samples * (kind === "height" ? 2 : 1);
 }
 
+const MISSING_TILES_MESSAGE = "Terrain tiles not generated. Run: python3 tools/terrain/generate.py then node tools/tiler/tile.mjs";
+
 async function fetchArrayBuffer(url, signal) {
   const response = await fetch(url, { signal });
   if (!response.ok) throw new Error(`HTTP ${response.status} while fetching ${url}`);
-  return response.arrayBuffer();
+  const buffer = await response.arrayBuffer();
+  const contentType = response.headers.get("content-type") ?? "";
+  const preview = new TextDecoder().decode(buffer.slice(0, 64)).trimStart().toLowerCase();
+  if (contentType.includes("text/html") || preview.startsWith("<!doctype html") || preview.startsWith("<html")) {
+    throw new Error(MISSING_TILES_MESSAGE);
+  }
+  return buffer;
 }
 
 // Decoded tile buffers are kept in a small LRU. Active meshes keep their own
@@ -43,16 +51,17 @@ export class TileCache {
     return tile;
   }
 
-  async load(root, i, j, lod, signal) {
+  async load(root, i, j, lod, signal, hasWater = false) {
     const cached = this.get(i, j, lod);
     if (cached) return cached;
 
     const directory = `${root}/lod_${lod}/chunk_${i}_${j}`;
     const heightUrl = `${directory}/height_u16.bin`;
     const biomeUrl = `${directory}/biome_u8.bin`;
-    const [heightBuffer, biomeBuffer] = await Promise.all([
+    const [heightBuffer, biomeBuffer, waterBuffer] = await Promise.all([
       fetchArrayBuffer(heightUrl, signal),
       fetchArrayBuffer(biomeUrl, signal),
+      hasWater ? fetchArrayBuffer(directory + "/water_u16.bin", signal) : Promise.resolve(null),
     ]);
 
     const heightExpected = expectedBytes(lod, "height");
@@ -63,6 +72,9 @@ export class TileCache {
     if (biomeBuffer.byteLength !== biomeExpected) {
       throw new Error(`${biomeUrl}: expected ${biomeExpected} bytes, received ${biomeBuffer.byteLength}`);
     }
+    if (waterBuffer && waterBuffer.byteLength !== heightExpected) {
+      throw new Error(`water_u16.bin for chunk (${i},${j}) LOD ${lod}: expected ${heightExpected} bytes, received ${waterBuffer.byteLength}`);
+    }
 
     // The tile format is uint16 little-endian. The target browsers use
     // little-endian typed arrays, matching the binary files written by T004.
@@ -72,6 +84,7 @@ export class TileCache {
       lod,
       heights: new Uint16Array(heightBuffer),
       biomes: new Uint8Array(biomeBuffer),
+      water: waterBuffer ? new Uint16Array(waterBuffer) : null,
     };
     return this.remember(i, j, lod, tile);
   }

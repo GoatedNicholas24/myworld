@@ -95,3 +95,10 @@ export function buildFarBuffers(heightMaster, biomeMaster) {
   }
   return { height: heightOut, biome: biomeOut };
 }
+
+// Water sampling helpers follow the same deterministic grid arithmetic as terrain.
+
+export const sampleWaterU16 = (buffer, index) => buffer.readUInt16LE(index * 2);
+
+export const sampleNearestU16 = (master, xn, yn, d) => master.readUInt16LE((Math.min(GRID_SAMPLES-1,Math.floor((yn+d/2)/d))*GRID_SAMPLES+Math.min(GRID_SAMPLES-1,Math.floor((xn+d/2)/d)))*2);
+export function buildWaterChunkBuffer(master, ci, cj, quads) { const n=quads+1, out=Buffer.alloc(n*n*2); let offset=0, wet=false; for(let row=0;row<=quads;row++){const y=positionParts(cj,row,quads), yn=y.low*quads+y.remainder; for(let col=0;col<=quads;col++){const x=positionParts(ci,col,quads), xn=x.low*quads+x.remainder, v=sampleNearestU16(master,xn,yn,quads); out.writeUInt16LE(v,offset); offset+=2; if(v!==0) wet=true;}} return wet?out:null; }

@@ -1,5 +1,6 @@
 import { TileCache, bilinearRaw, decodeElevation } from "./tileCache.js";
 import { createFarMesh, createTileMesh, updateTileNormals } from "./geometry.js";
+import { createWaterSystem } from "./water.js";
 
 const WORLD_SIZE = 20000;
 const WORLD_HALF = WORLD_SIZE / 2;
@@ -10,10 +11,18 @@ const MAX_CONCURRENT_FETCHES = 4;
 const MAX_BUILDS_PER_FRAME = 2;
 const clamp = (value, low, high) => Math.min(Math.max(value, low), high);
 
+const MISSING_TILES_MESSAGE = "Terrain tiles not generated. Run: python3 tools/terrain/generate.py then node tools/tiler/tile.mjs";
+
 async function fetchBuffer(url) {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`HTTP ${response.status} while fetching ${url}`);
-  return response.arrayBuffer();
+  const buffer = await response.arrayBuffer();
+  const contentType = response.headers.get("content-type") ?? "";
+  const preview = new TextDecoder().decode(buffer.slice(0, 64)).trimStart().toLowerCase();
+  if (contentType.includes("text/html") || preview.startsWith("<!doctype html") || preview.startsWith("<html")) {
+    throw new Error(MISSING_TILES_MESSAGE);
+  }
+  return buffer;
 }
 
 function expectSize(buffer, expected, url) {
@@ -32,13 +41,29 @@ export async function createTileTerrain({ THREE, world, quality }) {
   const metadataUrl = `${terrainRoot}/terrain.json`;
   const metadataResponse = await fetch(metadataUrl);
   if (!metadataResponse.ok) throw new Error(`HTTP ${metadataResponse.status} while fetching ${metadataUrl}`);
-  const metadata = await metadataResponse.json();
+  const metadataType = metadataResponse.headers.get("content-type") ?? "";
+  if (metadataType.includes("text/html")) throw new Error(MISSING_TILES_MESSAGE);
+  let metadata;
+  try {
+    metadata = await metadataResponse.json();
+  } catch {
+    throw new Error(MISSING_TILES_MESSAGE);
+  }
   if (!Array.isArray(metadata.samples) || metadata.samples[0] !== 2001 || metadata.samples[1] !== 2001) {
     throw new Error(`${metadataUrl} must describe a 2001 x 2001 master grid`);
   }
   if (!Array.isArray(metadata.biomes) || metadata.biomes.length === 0) {
     throw new Error(`${metadataUrl} does not list biome paint colours`);
   }
+
+  let waterIndex = { lods: {} };
+  try {
+    const response = await fetch(tileRoot + "/water_index.json");
+    if (response.ok) waterIndex = await response.json();
+  } catch (error) {
+    console.warn("water: water index unavailable; water tiles skipped.", error.message);
+  }
+  const waterChunks = new Map([64, 32, 16, 8].map((lod) => [lod, new Set((waterIndex.lods?.[lod] ?? []).map(([i, j]) => i + "," + j))]));
 
   const farHeightUrl = `${tileRoot}/far/height_u16.bin`;
   const farBiomeUrl = `${tileRoot}/far/biome_u8.bin`;
@@ -99,6 +124,7 @@ export async function createTileTerrain({ THREE, world, quality }) {
   function disposeRecord(record) {
     group.remove(record.mesh);
     record.mesh.geometry.dispose();
+    for (const waterRecord of record.waterRecords ?? []) for (const mesh of waterRecord.meshes ?? [waterRecord.mesh]) { if (mesh) { group.remove(mesh); mesh.geometry.dispose(); } }
     active.delete(activeKey(record.i, record.j));
     for (const neighbour of [
       neighbourFor(record.i - 1, record.j, record.lod),
@@ -119,7 +145,9 @@ export async function createTileTerrain({ THREE, world, quality }) {
       tileTriangles += record.triangles;
     }
     const farTriangles = farMeshRecord?.triangles ?? 0;
+    const waterTriangles = [...active.values()].reduce((sum, record) => sum + (record.waterRecords ?? []).reduce((n, water) => n + (water.triangles ?? 0), 0), 0);
     console.log(formatTerrainStats(counts, farTriangles, tileTriangles + farTriangles));
+    console.log("water: active triangles", waterTriangles, "across terrain chunks", active.size);
   }
 
   function replaceFarMesh() {
@@ -167,7 +195,7 @@ export async function createTileTerrain({ THREE, world, quality }) {
       const controller = new AbortController();
       const entry = { lod: wanted.lod, controller };
       pending.set(key, entry);
-      cache.load(tileRoot, wanted.i, wanted.j, wanted.lod, controller.signal)
+      cache.load(tileRoot, wanted.i, wanted.j, wanted.lod, controller.signal, waterChunks.get(wanted.lod).has(wanted.i + "," + wanted.j))
         .then((tile) => {
           if (pending.get(key) !== entry) return;
           pending.delete(key);
@@ -276,17 +304,49 @@ export async function createTileTerrain({ THREE, world, quality }) {
     return decodeElevation(bilinearRaw(farHeights, FAR_SAMPLES, FAR_SAMPLES, fx, fy));
   }
 
+  function biomeAt(x, z) {
+    const xs = worldToCandidateChunks(x);
+    const zs = worldToCandidateChunks(z);
+    let best = null;
+    for (const j of zs) {
+      for (const i of xs) {
+        const record = active.get(activeKey(i, j));
+        if (record && (!best || record.lod > best.lod)) best = record;
+      }
+    }
+    let biomeIndex;
+    if (best) {
+      const col = Math.round(clamp((x - (-WORLD_HALF + best.i * CHUNK_METRES)) / CHUNK_METRES, 0, 1) * best.lod);
+      const row = Math.round(clamp((z - (-WORLD_HALF + best.j * CHUNK_METRES)) / CHUNK_METRES, 0, 1) * best.lod);
+      biomeIndex = best.tile.biomes[row * (best.lod + 1) + col];
+    } else {
+      const col = Math.round(clamp((x + WORLD_HALF) / 80, 0, FAR_SAMPLES - 1));
+      const row = Math.round(clamp((z + WORLD_HALF) / 80, 0, FAR_SAMPLES - 1));
+      biomeIndex = farBiomes[row * FAR_SAMPLES + col];
+    }
+    return metadata.biomes.find((biome) => biome.index === biomeIndex)?.name ?? "Unknown";
+  }
+
   const terrain = {
     heightAt,
+    biomeAt,
     soilAt: () => 0,
     sandAt: () => 0,
     clearingAt: () => 0,
     grassCoverAt: () => 0,
     lakes: [],
     sandColor: "#8b8a68",
+    isWaterAt: (x, z) => waterSystem.waterDepthAt(x, z, active) > 0,
+    waterSurfaceAt: (x, z) => waterSystem.waterSurfaceAt(x, z, active),
+    waterDepthAt: (x, z) => waterSystem.waterDepthAt(x, z, active),
+    distanceToRiverAt: (x, z) => waterSystem.distanceToRiverAt(x, z),
+    rivers: [],
   };
+  const waterSystem = await createWaterSystem({ THREE, terrain, terrainRoot, quality });
+  terrain.rivers = waterSystem.rivers;
+  terrain.lakes = waterSystem.lakes;
 
-  function update(camera) {
+  function update(camera, delta = 0) {
     if (
       forcePlan ||
       !Number.isFinite(lastPlanX) ||
@@ -303,6 +363,10 @@ export async function createTileTerrain({ THREE, world, quality }) {
       const tile = task.tile ?? cache.get(task.i, task.j, task.lod);
       if (!tile) continue;
       const record = createTileMesh(THREE, tile, paintColors, material, neighbourFor);
+      record.waterRecords = waterSystem.buildChunk(tile, camera);
+      for (const waterRecord of record.waterRecords) {
+        for (const mesh of waterRecord.meshes ?? [waterRecord.mesh]) if (mesh) group.add(mesh);
+      }
       active.set(task.key, record);
       group.add(record.mesh);
       refreshLocalNormals(record);
@@ -310,16 +374,19 @@ export async function createTileTerrain({ THREE, world, quality }) {
       statsDirty = true;
     }
 
+    waterSystem.update(delta);
     pumpFetches();
     if (statsDirty) {
       printStats();
       statsDirty = false;
     }
+    return built;
   }
 
   function setQuality(nextQuality) {
     if (nextQuality.name === currentQuality.name) return;
     currentQuality = nextQuality;
+    waterSystem.setQuality(nextQuality);
     replaceFarMesh();
     forcePlan = true;
   }
@@ -327,10 +394,14 @@ export async function createTileTerrain({ THREE, world, quality }) {
   function dispose() {
     for (const entry of pending.values()) entry.controller.abort();
     pending.clear();
-    for (const record of active.values()) record.mesh.geometry.dispose();
+    for (const record of active.values()) {
+      record.mesh.geometry.dispose();
+      for (const water of record.waterRecords ?? []) for (const mesh of water.meshes ?? [water.mesh]) if (mesh) mesh.geometry.dispose();
+    }
     active.clear();
     if (farMeshRecord) farMeshRecord.mesh.geometry.dispose();
     cache.clear();
+    waterSystem.dispose();
     material.dispose();
   }
 
@@ -341,13 +412,18 @@ export async function createTileTerrain({ THREE, world, quality }) {
   return {
     group,
     terrain,
+    mapData: { metadata, farHeights, farBiomes },
     update,
+    getActiveChunks() {
+      return [...active.values()];
+    },
     setQuality,
     dispose,
     getTriangleCount() {
       let total = farMeshRecord?.triangles ?? 0;
-      for (const record of active.values()) total += record.triangles;
+      for (const record of active.values()) { total += record.triangles; for (const water of record.waterRecords ?? []) total += water.triangles ?? 0; }
       return total;
     },
+    getWaterTriangleCount() { return [...active.values()].reduce((sum, record) => sum + (record.waterRecords ?? []).reduce((n, water) => n + (water.triangles ?? 0), 0), 0); },
   };
 }

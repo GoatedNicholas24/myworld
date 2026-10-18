@@ -68,10 +68,21 @@ export async function loadMasterMaps(inputDir) {
   const sampleCount = GRID_SAMPLES * GRID_SAMPLES;
   const heightPath = join(inputDir, heightName);
   const biomePath = join(inputDir, biomeName);
-  const [heightBuffer, biomeBuffer] = await Promise.all([
+  const waterName = terrain.maps?.water_level?.file ?? terrain.water?.level_file ?? undefined;
+  const waterPath = waterName ? join(inputDir, waterName) : null;
+  const [heightBuffer, biomeBuffer, waterBuffer] = await Promise.all([
     readRequiredFile(heightPath, sampleCount * 2),
     readRequiredFile(biomePath, sampleCount),
+    waterPath ? readRequiredFile(waterPath, sampleCount * 2) : Promise.resolve(null),
   ]);
+
+  const densityDefinitions = terrain.resource_density ?? {};
+  const densityMaps = {};
+  for (const [id, definition] of Object.entries(densityDefinitions)) {
+    assert(typeof definition.file === "string", `${terrainPath} resource_density.${id} is missing file.`);
+    const buffer = await readRequiredFile(join(inputDir, definition.file), sampleCount);
+    densityMaps[id] = { definition, buffer };
+  }
 
   let minElevationM = Infinity;
   let maxElevationM = -Infinity;
@@ -86,8 +97,11 @@ export async function loadMasterMaps(inputDir) {
     terrain,
     heightBuffer,
     biomeBuffer,
+    densityMaps,
+    waterBuffer,
     heightPath,
     biomePath,
+    waterPath,
     minElevationM,
     maxElevationM,
   };
