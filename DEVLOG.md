@@ -130,3 +130,68 @@
 
 **Next step**
 - T011: draw the water from `rivers.json`.
+
+## 2026-10-18: A01 acacia tree in three quality tiers
+
+**What was built**
+- `assets/library/source/vegetation/create_a01_acacia_tiers.py`: one procedural acacia skeleton (forking trunk, three limbs, radiating branches, flat-topped umbrella canopy) built at three detail levels from the same seed.
+- Three GLBs in `public/assets/models/vegetation/`: `a01_acacia_tree_low.glb`, `_med.glb`, `_high.glb`. Each has a root node, three canopy pivots for wind, no textures and about 11-12 draw calls.
+- Source `A01_acacia_tree_tiers.blend`, four previews (one per tier plus a side-by-side comparison) and `metadata/A01_acacia_tree_tiers.json`.
+
+**Numbers (triangles / GLB size)**
+- low 3,506 / 251,632 bytes; med 6,000 / 348,596 bytes; high 8,016 / 403,844 bytes.
+- About 7.3 m wide and 5.4 m tall.
+
+**Known problems**
+- Pending visual review; not yet loaded in the game.
+- Wind animation and the settings-page quality switch are not built yet.
+- The first single-model A01 files (`a01_acacia_tree.glb`, `A01_acacia_tree.blend`, `A01_acacia_tree.json`, `create_a01_acacia.py`) are untouched and not committed.
+
+**Next step**
+- Review the comparison preview, then build A02 (dry grass tuft).
+
+## 2026-10-19: A01 acacia v2 (wind, textures, 32k / 40k / 50k triangles)
+
+**What was built**
+- `assets/library/source/vegetation/create_a01_acacia_tiers.py` rewritten: same tree at three detail levels, now with a fissured trunk and buttress roots, three limbs, radiating branches, twigs and a flat-topped canopy.
+- Movable parts: 14 pivots (trunk, crown, three limbs, nine canopy groups) and a looping `wind_sway` clip (4.0 s, 121 keys, seamless). Wind masks are also stored in a second UV set for shader wind.
+- Detail without extra triangles: bark albedo and normal map, alpha-cut acacia leaflet texture, baked vertex-colour shading.
+- Textures in `assets/library/source/vegetation/textures/`, GLBs in `public/assets/models/vegetation/`.
+
+**Numbers (triangles / GLB size / draw calls)**
+- low 32,001 / 3,898,908 bytes / 13
+- med 40,014 / 3,780,452 bytes / 13
+- high 49,983 / 3,730,772 bytes / 13
+- About 6.9 m wide and 5.3 m tall. Canopy edge sways 15-23 cm.
+
+**Changed**
+- Version 1 (3.5k / 6k / 8k, no wind) is archived in `assets/library/source/vegetation/legacy_v1/`; it may suit distant LODs.
+
+**Known problems**
+- Not tested in the game yet; GLBs are about 3.7-3.9 MB each (no mesh compression); settings-page tier switch not built.
+- Textures were first saved blank (colour space set after pixels). Fixed, and the script now checks them by reading them back.
+
+**Next step**
+- Load a tier in the game with an AnimationMixer, check the wind and the cut-out leaves, then review before starting A02.
+
+## 2026-10-19: Direction change and A02 dry grass tuft
+
+**Decision**
+- Fewer triangles, more painted texture, for average Android phones, iPhones and PCs. The look targets Firewatch and Entergalactic. Written down in `assets/library/STYLE_GUIDE.md`, which overrides the larger catalogue budgets.
+- Assets are tested in the game after the first 10 exist.
+
+**What was built**
+- `assets/library/source/painter.py`: shared helpers (brush-stroke textures, texture saving that refuses blank output, GLB re-inspection, preview stage).
+- A02 dry grass tuft: `create_a02_grass.py`, one painted blade atlas (256x512 JPEG, 29 KB), three tiers, shader wind mask, four colour tints (dry, green, burned, regrowing) from the same texture.
+
+**Numbers (triangles / GLB size / draw calls)**
+- low 110 / 39,768 bytes / 1
+- med 252 / 49,464 bytes / 1
+- high 455 / 64,056 bytes / 1 (adds seed-head stalks)
+- 260 medium tufts render as a full meadow (about 65,000 triangles total).
+
+**Known problems**
+- Not tested in the game. The A01 acacia (32k-50k triangles) predates the decision and needs a rebuild at roughly 1,500 / 3,500 / 7,000 triangles with painted textures.
+
+**Next step**
+- Review the A02 previews, then build A03 (thorny savanna shrub) in the same style.

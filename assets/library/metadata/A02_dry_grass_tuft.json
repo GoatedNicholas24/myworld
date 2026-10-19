@@ -1,0 +1,243 @@
+{
+  "id": "A02",
+  "name": "Dry Savanna Grass Tuft",
+  "category": "vegetation",
+  "biome": "East African savanna",
+  "status": "generated_pending_review",
+  "style": "painterly texture-first (see assets/library/STYLE_GUIDE.md)",
+  "creation_method": "procedural Blender Python; painted blade atlas generated in code",
+  "source": {
+    "blend": "assets/library/source/vegetation/A02_dry_grass_tuft.blend",
+    "script": "assets/library/source/vegetation/create_a02_grass.py",
+    "helper": "assets/library/source/painter.py",
+    "texture": "assets/library/source/vegetation/textures/a02_grass_atlas.jpg",
+    "external_assets_used": false,
+    "license": "Original procedural model and texture; no external assets used"
+  },
+  "tiers": {
+    "low": {
+      "glb": "public/assets/models/vegetation/a02_dry_grass_tuft_low.glb",
+      "triangles": 110,
+      "glb_bytes": 39768,
+      "draw_calls": 1,
+      "blades": 22,
+      "stalks": 0,
+      "attributes": [
+        "COLOR_0",
+        "NORMAL",
+        "POSITION",
+        "TEXCOORD_0",
+        "TEXCOORD_1"
+      ],
+      "bbox_min": [
+        -0.51,
+        0.0,
+        -0.41
+      ],
+      "bbox_max": [
+        0.483,
+        0.671,
+        0.478
+      ],
+      "images": {
+        "a02_grass_atlas": {
+          "bytes": 29311,
+          "magic": "ffd8ff"
+        }
+      },
+      "materials": {
+        "A02_Grass": {
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "has_base_texture": true
+        }
+      },
+      "wind_mask_range": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          0.14,
+          0.99
+        ]
+      ],
+      "custom_normals": true,
+      "preview": "assets/library/previews/A02_dry_grass_tuft_low.png"
+    },
+    "med": {
+      "glb": "public/assets/models/vegetation/a02_dry_grass_tuft_med.glb",
+      "triangles": 252,
+      "glb_bytes": 49464,
+      "draw_calls": 1,
+      "blades": 36,
+      "stalks": 0,
+      "attributes": [
+        "COLOR_0",
+        "NORMAL",
+        "POSITION",
+        "TEXCOORD_0",
+        "TEXCOORD_1"
+      ],
+      "bbox_min": [
+        -0.51,
+        0.0,
+        -0.511
+      ],
+      "bbox_max": [
+        0.483,
+        0.705,
+        0.478
+      ],
+      "images": {
+        "a02_grass_atlas": {
+          "bytes": 29311,
+          "magic": "ffd8ff"
+        }
+      },
+      "materials": {
+        "A02_Grass": {
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "has_base_texture": true
+        }
+      },
+      "wind_mask_range": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          0.14,
+          0.99
+        ]
+      ],
+      "custom_normals": true,
+      "preview": "assets/library/previews/A02_dry_grass_tuft_med.png"
+    },
+    "high": {
+      "glb": "public/assets/models/vegetation/a02_dry_grass_tuft_high.glb",
+      "triangles": 455,
+      "glb_bytes": 64056,
+      "draw_calls": 1,
+      "blades": 56,
+      "stalks": 7,
+      "attributes": [
+        "COLOR_0",
+        "NORMAL",
+        "POSITION",
+        "TEXCOORD_0",
+        "TEXCOORD_1"
+      ],
+      "bbox_min": [
+        -0.51,
+        0.0,
+        -0.511
+      ],
+      "bbox_max": [
+        0.483,
+        1.19,
+        0.478
+      ],
+      "images": {
+        "a02_grass_atlas": {
+          "bytes": 29311,
+          "magic": "ffd8ff"
+        }
+      },
+      "materials": {
+        "A02_Grass": {
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "has_base_texture": true
+        }
+      },
+      "wind_mask_range": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          0.04,
+          0.99
+        ]
+      ],
+      "custom_normals": true,
+      "preview": "assets/library/previews/A02_dry_grass_tuft_high.png"
+    }
+  },
+  "texture": {
+    "bytes": 29311,
+    "spread": 0.247,
+    "size": [
+      256,
+      512
+    ],
+    "file": "a02_grass_atlas.jpg"
+  },
+  "previews": {
+    "comparison": "assets/library/previews/A02_dry_grass_tuft_tiers_comparison.png",
+    "tints": "assets/library/previews/A02_dry_grass_tuft_tints.png",
+    "field": "assets/library/previews/A02_dry_grass_tuft_field.png"
+  },
+  "variants": {
+    "how": "multiply the base colour (material colour factor or shader uniform) by these RGB values; height scaling is done in the game",
+    "tints": {
+      "dry": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "green": [
+        0.62,
+        1.0,
+        0.55
+      ],
+      "burned": [
+        0.35,
+        0.3,
+        0.28
+      ],
+      "regrowing": [
+        0.7,
+        1.05,
+        0.5
+      ]
+    },
+    "regrowing_note": "also scale the instance height to about 0.4"
+  },
+  "wind": {
+    "mode": "shader mask only",
+    "attribute": "TEXCOORD_1 (uv1 in three.js): x = sway weight (0 at base, 1 at tip), y = per-blade phase 0..1",
+    "node_animation": "none; instance thousands of tufts with InstancedMesh and move vertices in the shader"
+  },
+  "shared": {
+    "origin": "tuft base centre at the world origin, Z up in Blender, Y up in glTF",
+    "size_m": "about 1.0 m wide and 0.7 m tall (blades lean outward); stalks on the high tier reach about 1.2 m",
+    "material": "one matte painted material, double sided, no alpha (shape comes from the geometry)",
+    "collision": "none",
+    "instancing": "one draw call per tier; use InstancedMesh with random yaw and scale 0.8-1.45"
+  },
+  "game_integration_tested": false,
+  "review_notes": [
+    "Judge the painted look in the field preview, not only the single tuft.",
+    "Check blade shapes and tint variants against the game ground colours and moods.",
+    "Test shader wind and InstancedMesh in the game once 10 assets exist."
+  ],
+  "verification": {
+    "method": "GLB files re-read from disk after export",
+    "checks_passed": [
+      "triangle count in each GLB equals the count built (110 / 252 / 455)",
+      "embedded atlas is a valid 256x512 JPEG, 29,311 bytes, not blank (read-back spread 0.247)",
+      "wind mask TEXCOORD_1 spans 0..1 in x; COLOR_0 and custom normals present",
+      "one draw call per tier",
+      "tint variants rendered and checked visually (dry, green, burned, regrowing)",
+      "260 instanced medium tufts rendered as a field to judge the painted look at distance"
+    ]
+  },
+  "known_limits": [
+    "Not tested in the game; shader wind and InstancedMesh are untested until 10 assets exist.",
+    "Tints are multipliers applied in the game; the game must implement them.",
+    "Blades are single-sided cards rendered double sided; check overdraw with very dense fields on weak phones."
+  ]
+}

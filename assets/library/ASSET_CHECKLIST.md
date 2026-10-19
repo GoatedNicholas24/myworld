@@ -8,14 +8,14 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` reviewed and complet
 
 - [x] Create the `assets-library` branch from `terrain-generator`.
 - [x] Define source, preview, metadata, and runtime-export locations.
-- [ ] Confirm Blender MCP can inspect a test scene safely.
+- [x] Confirm Blender MCP can inspect a test scene safely.
 - [ ] Agree on the shared asset naming, scale, origin, triangle-count, and export conventions.
 - [ ] Verify one exported GLB can be viewed and loaded by the current game.
 
 ## Phase 1 — First playable environment assets
 
-- [ ] **A01 — East African savanna acacia tree.** Hero test asset: distinctive flat canopy, irregular trunk and branches, stylised-realistic materials. Keep it lightweight. This is the first asset to make in the next chat.
-- [ ] **A02 — Dry grass tuft.** Small reusable ground vegetation; should be cheap to instance many times.
+- [~] **A01 — East African savanna acacia tree.** *v2: three quality tiers (low >= 32,000, med >= 40,000, high <= 50,000 triangles), textured, with a wind_sway animation and 14 movable pivots; pending your review and a game test. See `assets/library/metadata/A01_acacia_tree_tiers.json`. Needs a rebuild in the new low-triangle painted style (see `STYLE_GUIDE.md`).*
+- [~] **A02 — Dry grass tuft.** *Generated in three tiers (110 / 252 / 455 triangles) with a painted blade atlas, tint variants and a shader wind mask; pending your review. See `assets/library/metadata/A02_dry_grass_tuft.json`.*
 - [ ] **A03 — Savanna thorny shrub.** Irregular silhouette, a few colour variants from shared geometry/materials.
 - [ ] **A04 — Weathered rock / boulder set.** One reusable base mesh with several size/rotation variants.
 - [ ] **A05 — Fallen branch and log.** Useful as scenery and a future harvestable timber resource.

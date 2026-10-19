@@ -1,0 +1,40 @@
+{
+  "id": "A01",
+  "name": "East African Savanna Acacia",
+  "category": "vegetation",
+  "biome": "East African savanna",
+  "status": "generated_pending_review",
+  "creation_method": "procedural Blender Python",
+  "source": {
+    "blend": "assets/library/source/vegetation/A01_acacia_tree.blend",
+    "script": "assets/library/source/vegetation/create_a01_acacia.py",
+    "external_assets_used": false,
+    "license": "Original procedural model; no external assets used"
+  },
+  "runtime": {
+    "format": "glb",
+    "path": "public/assets/models/vegetation/a01_acacia_tree.glb",
+    "file_size_bytes": 329392,
+    "triangle_count": 3468,
+    "material_count": 6,
+    "dimensions_xyz": [
+      5.572,
+      2.876,
+      5.699
+    ],
+    "origin": "World origin at tree base",
+    "textures": false,
+    "animation_ready": true,
+    "animation_note": "Three canopy pivot empties group foliage. Actual wind animation must be implemented and tested in the game."
+  },
+  "preview": "assets/library/previews/A01_acacia_tree.png",
+  "game_integration_tested": false,
+  "review_notes": [
+    "Inspect bark ridge placement and cracks.",
+    "Inspect canopy silhouette, gaps and branch visibility.",
+    "Check GLB import and materials in the game.",
+    "Verify scale and origin.",
+    "Test that all three canopy pivots export correctly.",
+    "Implement and test gentle wind animation in JavaScript."
+  ]
+}

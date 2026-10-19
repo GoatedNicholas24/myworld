@@ -1,0 +1,372 @@
+{
+  "id": "A01",
+  "name": "East African Savanna Acacia",
+  "category": "vegetation",
+  "biome": "East African savanna",
+  "status": "generated_pending_review",
+  "version": 2,
+  "creation_method": "procedural Blender Python; one skeleton, three detail tiers, articulated for wind",
+  "source": {
+    "blend": "assets/library/source/vegetation/A01_acacia_tree_tiers.blend",
+    "script": "assets/library/source/vegetation/create_a01_acacia_tiers.py",
+    "textures": [
+      "assets/library/source/vegetation/textures/a01_bark_albedo.jpg",
+      "assets/library/source/vegetation/textures/a01_bark_normal.jpg",
+      "assets/library/source/vegetation/textures/a01_foliage_leaf.png"
+    ],
+    "external_assets_used": false,
+    "license": "Original procedural model and textures; no external assets used"
+  },
+  "triangle_budget": {
+    "low": ">= 32,000",
+    "med": ">= 40,000",
+    "high": "<= 50,000"
+  },
+  "tiers": {
+    "low": {
+      "glb": "public/assets/models/vegetation/a01_acacia_tree_low.glb",
+      "preview": "assets/library/previews/A01_acacia_tree_low.png",
+      "triangles_built": 32001,
+      "glb_triangles": 32001,
+      "glb_bytes": 3898908,
+      "dimensions_xyz_m": [
+        6.964,
+        6.494,
+        5.342
+      ],
+      "nodes": 28,
+      "meshes": 13,
+      "primitives_draw_calls": 13,
+      "attributes": [
+        "COLOR_0",
+        "NORMAL",
+        "POSITION",
+        "TEXCOORD_0",
+        "TEXCOORD_1"
+      ],
+      "images": [
+        [
+          "image/jpeg",
+          "a01_bark_normal"
+        ],
+        [
+          "image/jpeg",
+          "a01_bark_albedo"
+        ],
+        [
+          "image/png",
+          "a01_foliage_leaf"
+        ]
+      ],
+      "materials": {
+        "A01_Bark": {
+          "alphaMode": "OPAQUE",
+          "has_normal_map": true,
+          "has_base_texture": true
+        },
+        "A01_Foliage": {
+          "alphaMode": "MASK",
+          "has_normal_map": false,
+          "has_base_texture": true
+        }
+      },
+      "animations": [
+        {
+          "name": "wind_sway",
+          "channels": 14,
+          "paths": [
+            "rotation"
+          ]
+        }
+      ],
+      "pivot_count": 14,
+      "wind_test": {
+        "probe": "A01_low_Canopy_01",
+        "displacement_cm_by_frame": {
+          "1": 0.0,
+          "16": 1.74,
+          "31": 8.18,
+          "46": 15.02,
+          "61": 13.13,
+          "76": 14.03,
+          "91": 12.27,
+          "106": 8.22,
+          "121": 0.0
+        },
+        "max_cm": 15.02,
+        "loop_closure_error_cm": 0.0
+      },
+      "breakdown": {
+        "trunk": 1738,
+        "roots": 665,
+        "limbs_branches_twigs_pads": 17698,
+        "fill_foliage": 11900,
+        "TOTAL": 32001,
+        "target": 32000,
+        "mode": "min",
+        "canopy_blob_counts": {
+          "00": 58,
+          "01": 72,
+          "02": 68,
+          "10": 67,
+          "11": 73,
+          "12": 89,
+          "20": 53,
+          "21": 81,
+          "22": 98
+        }
+      }
+    },
+    "med": {
+      "glb": "public/assets/models/vegetation/a01_acacia_tree_med.glb",
+      "preview": "assets/library/previews/A01_acacia_tree_med.png",
+      "triangles_built": 40014,
+      "glb_triangles": 40014,
+      "glb_bytes": 3780452,
+      "dimensions_xyz_m": [
+        6.899,
+        6.419,
+        5.342
+      ],
+      "nodes": 28,
+      "meshes": 13,
+      "primitives_draw_calls": 13,
+      "attributes": [
+        "COLOR_0",
+        "NORMAL",
+        "POSITION",
+        "TEXCOORD_0",
+        "TEXCOORD_1"
+      ],
+      "images": [
+        [
+          "image/jpeg",
+          "a01_bark_normal"
+        ],
+        [
+          "image/jpeg",
+          "a01_bark_albedo"
+        ],
+        [
+          "image/png",
+          "a01_foliage_leaf"
+        ]
+      ],
+      "materials": {
+        "A01_Bark": {
+          "alphaMode": "OPAQUE",
+          "has_normal_map": true,
+          "has_base_texture": true
+        },
+        "A01_Foliage": {
+          "alphaMode": "MASK",
+          "has_normal_map": false,
+          "has_base_texture": true
+        }
+      },
+      "animations": [
+        {
+          "name": "wind_sway",
+          "channels": 14,
+          "paths": [
+            "rotation"
+          ]
+        }
+      ],
+      "pivot_count": 14,
+      "wind_test": {
+        "probe": "A01_med_Canopy_01",
+        "displacement_cm_by_frame": {
+          "1": 0.0,
+          "16": 1.97,
+          "31": 9.13,
+          "46": 15.73,
+          "61": 15.3,
+          "76": 16.97,
+          "91": 16.92,
+          "106": 12.0,
+          "121": 0.0
+        },
+        "max_cm": 16.97,
+        "loop_closure_error_cm": 0.0
+      },
+      "breakdown": {
+        "trunk": 2566,
+        "roots": 1200,
+        "limbs_branches_twigs_pads": 29868,
+        "fill_foliage": 6380,
+        "TOTAL": 40014,
+        "target": 40000,
+        "mode": "min",
+        "canopy_blob_counts": {
+          "00": 33,
+          "01": 42,
+          "02": 40,
+          "10": 44,
+          "11": 46,
+          "12": 57,
+          "20": 34,
+          "21": 52,
+          "22": 55
+        }
+      }
+    },
+    "high": {
+      "glb": "public/assets/models/vegetation/a01_acacia_tree_high.glb",
+      "preview": "assets/library/previews/A01_acacia_tree_high.png",
+      "triangles_built": 49983,
+      "glb_triangles": 49983,
+      "glb_bytes": 3730772,
+      "dimensions_xyz_m": [
+        6.934,
+        6.587,
+        5.253
+      ],
+      "nodes": 28,
+      "meshes": 13,
+      "primitives_draw_calls": 13,
+      "attributes": [
+        "COLOR_0",
+        "NORMAL",
+        "POSITION",
+        "TEXCOORD_0",
+        "TEXCOORD_1"
+      ],
+      "images": [
+        [
+          "image/jpeg",
+          "a01_bark_normal"
+        ],
+        [
+          "image/jpeg",
+          "a01_bark_albedo"
+        ],
+        [
+          "image/png",
+          "a01_foliage_leaf"
+        ]
+      ],
+      "materials": {
+        "A01_Bark": {
+          "alphaMode": "OPAQUE",
+          "has_normal_map": true,
+          "has_base_texture": true
+        },
+        "A01_Foliage": {
+          "alphaMode": "MASK",
+          "has_normal_map": false,
+          "has_base_texture": true
+        }
+      },
+      "animations": [
+        {
+          "name": "wind_sway",
+          "channels": 14,
+          "paths": [
+            "rotation"
+          ]
+        }
+      ],
+      "pivot_count": 14,
+      "wind_test": {
+        "probe": "A01_high_Canopy_01",
+        "displacement_cm_by_frame": {
+          "1": 0.0,
+          "16": 2.94,
+          "31": 9.22,
+          "46": 15.29,
+          "61": 16.96,
+          "76": 21.11,
+          "91": 23.38,
+          "106": 17.22,
+          "121": 0.0
+        },
+        "max_cm": 23.38,
+        "loop_closure_error_cm": 0.0
+      },
+      "breakdown": {
+        "trunk": 3666,
+        "roots": 1575,
+        "limbs_branches_twigs_pads": 43122,
+        "fill_foliage": 1620,
+        "TOTAL": 49983,
+        "target": 50000,
+        "mode": "max",
+        "canopy_blob_counts": {
+          "00": 12,
+          "01": 13,
+          "02": 12,
+          "10": 9,
+          "11": 13,
+          "12": 14,
+          "20": 13,
+          "21": 15,
+          "22": 12
+        }
+      }
+    }
+  },
+  "comparison_preview": "assets/library/previews/A01_acacia_tree_tiers_comparison.png",
+  "wind": {
+    "node_animation": {
+      "clip": "wind_sway",
+      "fps": 30,
+      "frames": 121,
+      "duration_s": 4.0,
+      "loops": true,
+      "first_frame_is_rest_pose": true,
+      "pivot_hierarchy": "root > P_Trunk > P_Crown > P_Limb_0..2 > P_Canopy_<limb><band>",
+      "amplitude_degrees": {
+        "trunk": 0.35,
+        "crown": 0.5,
+        "limb": 1.0,
+        "inner": 1.5,
+        "outer": 2.4
+      },
+      "note": "Play with an AnimationMixer; scale mixer weight toward 0 for calm, 1 for the full sway, and timeScale for speed. Wind blows toward +X in model space."
+    },
+    "shader_wind_masks": {
+      "attribute": "TEXCOORD_1 (uv1 in three.js)",
+      "x": "sway weight, 0 at the base rising to 1 at the canopy edge",
+      "y": "per-part phase 0..1 for desynchronised flutter",
+      "note": "Alternative to the clip, cheaper for forests: do not use both on the same tree."
+    }
+  },
+  "detail_without_triangles": [
+    "Tileable bark albedo + normal map (fissures, lichen patches)",
+    "Alpha-cut acacia leaflet texture on the foliage",
+    "Baked vertex-colour shading and ambient occlusion in COLOR_0",
+    "Wind masks stored in a second UV set"
+  ],
+  "shared": {
+    "origin": "World origin at the tree base, Z up in Blender, Y up in glTF",
+    "collision_suggestion": "Cylinder around the trunk only; canopy is not physical.",
+    "alpha": "Foliage material is alpha-cut (MASK, cutoff 0.45), double sided."
+  },
+  "quality_selection_note": "The game picks a tier from device capability by default; a settings page may let the player override it with a warning on limited devices.",
+  "game_integration_tested": false,
+  "supersedes_note": "Version 1 of the tiers (3.5k/6k/8k, no wind parts) is archived in assets/library/source/vegetation/legacy_v1/. The very first single-model A01 files are untouched.",
+  "review_notes": [
+    "Judge bark relief, fissure scale and colour in the comparison preview.",
+    "Check the foliage cutout look in the game lighting moods.",
+    "Test the wind_sway clip and the node pivots in three.js.",
+    "Profile the high tier on a weak Android phone; consider the legacy v1 meshes as distant LODs."
+  ],
+  "verification": {
+    "method": "GLB files re-read from disk after export",
+    "checks_passed": [
+      "triangle count in GLB equals triangle count built, for all three tiers",
+      "embedded bark albedo/normal are valid JPEG, leaf is valid PNG, sizes match the source textures",
+      "wind masks (TEXCOORD_1) span 0..1; vertex colour (COLOR_0) present",
+      "wind_sway clip: 4.0 s, 121 keys, first and last key identical (seamless loop)",
+      "canopy edge sway measured 15-23 cm over the loop; loop closure error 0 cm"
+    ],
+    "bug_found_and_fixed": "Textures were first saved blank because the colour space was set after the pixels; fixed and now checked by read-back."
+  },
+  "known_limits": [
+    "Not yet loaded in the game; animation and alpha-cut look untested in three.js.",
+    "GLB files are about 3.7-3.9 MB each; meshopt or draco compression was not applied and could shrink them a lot.",
+    "Foliage uses alpha-cut (MASK) with double-sided faces; check overdraw cost on weak phones.",
+    "Wind clip blows toward +X in model space; rotate the tree or the mixer for other wind directions."
+  ]
+}

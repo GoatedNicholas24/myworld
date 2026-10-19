@@ -1,0 +1,208 @@
+
+import bpy
+import math
+import json
+import random
+from pathlib import Path
+from mathutils import Vector
+
+# A02 - East African Savanna Grass
+random.seed(42)
+
+text = bpy.context.space_data.text
+if not text or not text.filepath:
+    raise RuntimeError("Save this script in the specified project path first.")
+
+script_path = Path(bpy.path.abspath(text.filepath)).resolve()
+root = script_path.parents[4]
+
+if not (root / "package.json").exists():
+    raise RuntimeError("Cannot find My World repository root.")
+
+source_dir = root / "assets/library/source/vegetation"
+runtime_dir = root / "public/assets/models/vegetation"
+metadata_dir = root / "assets/library/metadata"
+
+for folder in (source_dir, runtime_dir, metadata_dir):
+    folder.mkdir(parents=True, exist_ok=True)
+
+blend_path = source_dir / "A02_savanna_grass.blend"
+glb_path = runtime_dir / "a02_savanna_grass.glb"
+meta_path = metadata_dir / "A02_savanna_grass.json"
+
+collection_name = "A02_Savanna_Grass"
+collection = bpy.data.collections.get(collection_name)
+if collection is None:
+    collection = bpy.data.collections.new(collection_name)
+    bpy.context.scene.collection.children.link(collection)
+
+for obj in list(collection.objects):
+    bpy.data.objects.remove(obj, do_unlink=True)
+
+def material(name, color):
+    mat = bpy.data.materials.get(name)
+    if mat is None:
+        mat = bpy.data.materials.new(name)
+    mat.diffuse_color = (*color, 1)
+    mat.use_nodes = True
+    mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (*color, 1)
+    mat.node_tree.nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.9
+    return mat
+
+colors = [
+    material("A02_Dry_Gold", (0.62, 0.43, 0.16)),
+    material("A02_Sunlit_Grass", (0.79, 0.61, 0.27)),
+    material("A02_Deep_Ochre", (0.43, 0.29, 0.10)),
+    material("A02_Olive_Grass", (0.31, 0.34, 0.12)),
+    material("A02_Dead_Grass", (0.53, 0.43, 0.25)),
+]
+
+# Each blade is a tapered, curved mesh ribbon.
+def make_blade(index, angle, height, lean, width, mat):
+    direction = Vector((math.cos(angle), math.sin(angle), 0))
+    side = Vector((-direction.y, direction.x, 0))
+    base = Vector((
+        random.uniform(-0.16, 0.16),
+        random.uniform(-0.16, 0.16),
+        0.015
+    ))
+
+    vertices = []
+    rows = 5
+
+    for row in range(rows):
+        t = row / (rows - 1)
+        center = base + direction * (lean * t * t)
+        center.z = height * t
+
+        blade_width = width * (1 - t) ** 0.85 + 0.003
+        vertices.append(tuple(center - side * blade_width / 2))
+        vertices.append(tuple(center + side * blade_width / 2))
+
+    faces = []
+    for row in range(rows - 1):
+        a = row * 2
+        faces.append((a, a + 1, a + 3, a + 2))
+
+    mesh = bpy.data.meshes.new(f"A02_BladeMesh_{index:03d}")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.materials.append(mat)
+    mesh.update()
+
+    obj = bpy.data.objects.new(f"A02_Blade_{index:03d}", mesh)
+    collection.objects.link(obj)
+
+    # Double-sided appearance for thin blades.
+    solidify = obj.modifiers.new("Blade_Thickness", "SOLIDIFY")
+    solidify.thickness = 0.008
+
+    return obj
+
+blades = []
+for i in range(44):
+    angle = random.uniform(0, math.tau)
+    height = random.uniform(0.38, 1.05)
+    lean = random.uniform(0.12, 0.52)
+    width = random.uniform(0.045, 0.095)
+    mat = random.choices(colors, weights=[4, 2, 2, 2, 3])[0]
+
+    blades.append(make_blade(i, angle, height, lean, width, mat))
+
+# Small base mound keeps the tuft visually grounded.
+base_mat = material("A02_Grass_Base", (0.28, 0.22, 0.09))
+bpy.ops.mesh.primitive_ico_sphere_add(
+    subdivisions=1, radius=0.22, location=(0, 0, 0.06)
+)
+base = bpy.context.object
+base.name = "A02_Grass_Base"
+base.scale = (1.0, 1.0, 0.45)
+base.data.materials.append(base_mat)
+
+for old in list(base.users_collection):
+    old.objects.unlink(base)
+collection.objects.link(base)
+
+# Three pivot groups for future wind animation.
+pivots = []
+for name, angle in [
+    ("A02_Pivot_Left", -1.0),
+    ("A02_Pivot_Center", 0.0),
+    ("A02_Pivot_Right", 1.0),
+]:
+    pivot = bpy.data.objects.new(name, None)
+    collection.objects.link(pivot)
+    pivot.location = (0, 0, 0.06)
+    pivot.empty_display_type = "SPHERE"
+    pivot.empty_display_size = 0.06
+    pivots.append(pivot)
+
+bpy.context.view_layer.update()
+
+for blade in blades:
+    idx = min(
+        range(3),
+        key=lambda i: abs(
+            math.atan2(
+                math.sin(math.atan2(blade.location.y, blade.location.x) - [-1.0, 0.0, 1.0][i]),
+                math.cos(math.atan2(blade.location.y, blade.location.x) - [-1.0, 0.0, 1.0][i])
+            )
+        )
+    )
+    world_matrix = blade.matrix_world.copy()
+    blade.parent = pivots[idx]
+    blade.matrix_world = world_matrix
+
+# Set origin at the ground-level center.
+bpy.ops.object.select_all(action="DESELECT")
+for obj in collection.objects:
+    obj.select_set(True)
+bpy.context.view_layer.objects.active = base
+bpy.context.view_layer.update()
+
+# Save source, export only this asset collection.
+bpy.ops.wm.save_as_mainfile(filepath=str(blend_path))
+
+bpy.ops.object.select_all(action="DESELECT")
+for obj in collection.objects:
+    obj.select_set(True)
+bpy.context.view_layer.objects.active = blades[0]
+
+bpy.ops.export_scene.gltf(
+    filepath=str(glb_path),
+    export_format="GLB",
+    use_selection=True,
+    export_apply=True,
+    export_materials="EXPORT",
+)
+
+metadata = {
+    "id": "A02",
+    "name": "East African Savanna Grass Tuft",
+    "category": "vegetation",
+    "biome": "East African savanna",
+    "status": "generated_pending_review",
+    "source": {
+        "blend": str(blend_path.relative_to(root)).replace("\\", "/"),
+        "script": str(script_path.relative_to(root)).replace("\\", "/"),
+        "external_assets_used": False,
+        "license": "Original procedural model"
+    },
+    "runtime": {
+        "format": "glb",
+        "path": str(glb_path.relative_to(root)).replace("\\", "/"),
+        "file_size_bytes": glb_path.stat().st_size,
+        "blade_count": len(blades),
+        "movable_pivots": len(pivots),
+        "textures": False
+    },
+    "game_integration_tested": False
+}
+
+with open(meta_path, "w", encoding="utf-8") as f:
+    json.dump(metadata, f, indent=2)
+
+print("A02 Savanna Grass generated")
+print(f"Blend: {blend_path}")
+print(f"GLB:   {glb_path}")
+print(f"JSON:  {meta_path}")
+print("Status: pending review")
