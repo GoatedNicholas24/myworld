@@ -16,7 +16,7 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` reviewed and complet
 
 - [~] **A01 — East African savanna acacia tree.** *v2: three quality tiers (low >= 32,000, med >= 40,000, high <= 50,000 triangles), textured, with a wind_sway animation and 14 movable pivots; pending your review and a game test. See `assets/library/metadata/A01_acacia_tree_tiers.json`. Needs a rebuild in the new low-triangle painted style (see `STYLE_GUIDE.md`).*
 - [~] **A02 — Dry grass tuft.** *Generated in three tiers (110 / 252 / 455 triangles) with a painted blade atlas, tint variants and a shader wind mask; pending your review. See `assets/library/metadata/A02_dry_grass_tuft.json`.*
-- [ ] **A03 — Savanna thorny shrub.** Irregular silhouette, a few colour variants from shared geometry/materials.
+- [~] **A03 — Savanna thorny shrub.** *Generated in three tiers (300 / 700 / 1,400 triangles) with a painted atlas, flower and pod overlay nodes, tints and a shader wind mask; pending your review. See `assets/library/metadata/A03_thorny_shrub.json`.*
 - [ ] **A04 — Weathered rock / boulder set.** One reusable base mesh with several size/rotation variants.
 - [ ] **A05 — Fallen branch and log.** Useful as scenery and a future harvestable timber resource.
 - [ ] **A06 — Papyrus / wetland reed clump.** For lake edges, rivers, and marshes.

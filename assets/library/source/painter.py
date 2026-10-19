@@ -308,3 +308,20 @@ def preview_stage(scene, cam_loc=(10, -17, 9), target=(0, 0, 2.9), ortho=10.5,
         lo.location = (0, 0, 10)
         lo.rotation_euler = rot
     return cam
+
+
+def tinted_copy(mat, name, tint):
+    """Copy of a painted material with an extra colour multiplier (used for season previews)."""
+    new = mat.copy()
+    new.name = name
+    nt = new.node_tree
+    bsdf = nt.nodes.get("Principled BSDF")
+    src = bsdf.inputs["Base Color"].links[0].from_socket
+    mx = nt.nodes.new("ShaderNodeMix")
+    mx.data_type = "RGBA"
+    mx.blend_type = "MULTIPLY"
+    mx.inputs[0].default_value = 1.0
+    mx.inputs[7].default_value = (tint[0], tint[1], tint[2], 1.0)
+    nt.links.new(src, mx.inputs[6])
+    nt.links.new(mx.outputs[2], bsdf.inputs["Base Color"])
+    return new

@@ -195,3 +195,25 @@
 
 **Next step**
 - Review the A02 previews, then build A03 (thorny savanna shrub) in the same style.
+
+## 2026-10-19: A03 savanna thorny shrub
+
+**What was built**
+- `create_a03_shrub.py`: zigzag thorny stems (3-sided prisms), painted alpha-cut leaf-cluster cards with inked edges, single-triangle thorns, one painted 512x512 atlas (leaf, flower, pod, bark and thorn cells).
+- Each GLB has three nodes: `Shrub` (always), `Flowers` and `Pods` (shown by season). Colour tints (green, dry, burned) and a shader wind mask, as with A02.
+
+**Numbers (Shrub node triangles / all nodes / GLB size)**
+- low 300 / 344 / 191,640 bytes
+- med 700 / 780 / 232,956 bytes
+- high 1400 / 1524 / 300,368 bytes
+- About 1.7-2.4 m wide and 1.3 m tall; 3 draw calls with all nodes shown.
+
+**Changed**
+- After the first look the shrubs were made airier and drier: smaller cards, thicker stems, olive-gold palette, bigger thorns.
+
+**Known problems**
+- The revised render could not be inspected by eye (Blender window went black); review the previews.
+- Not tested in the game. Leaf-card overdraw on weak phones is unchecked.
+
+**Next step**
+- Review the A03 previews, then build A04 (weathered rock set).

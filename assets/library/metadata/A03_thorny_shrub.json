@@ -1,0 +1,346 @@
+{
+  "id": "A03",
+  "name": "Savanna Thorny Shrub",
+  "category": "vegetation",
+  "biome": "East African savanna and dry woodland",
+  "status": "generated_pending_review",
+  "style": "painterly texture-first (see assets/library/STYLE_GUIDE.md)",
+  "creation_method": "procedural Blender Python; painted atlas generated in code",
+  "source": {
+    "blend": "assets/library/source/vegetation/A03_thorny_shrub.blend",
+    "script": "assets/library/source/vegetation/create_a03_shrub.py",
+    "helper": "assets/library/source/painter.py",
+    "texture": "assets/library/source/vegetation/textures/a03_shrub_atlas.png",
+    "external_assets_used": false,
+    "license": "Original procedural model and texture; no external assets used"
+  },
+  "tiers": {
+    "low": {
+      "glb": "public/assets/models/vegetation/a03_thorny_shrub_low.glb",
+      "glb_bytes": 191640,
+      "shrub_triangles": 300,
+      "flowers_triangles": 24,
+      "pods_triangles": 20,
+      "total_triangles_all_nodes": 344,
+      "draw_calls_all_nodes": 3,
+      "nodes": [
+        "A03_low_Flowers",
+        "A03_low_Pods",
+        "A03_low_Shrub",
+        "A03_Shrub_LOW"
+      ],
+      "attributes": [
+        "COLOR_0",
+        "NORMAL",
+        "POSITION",
+        "TEXCOORD_0",
+        "TEXCOORD_1"
+      ],
+      "images": {
+        "a03_shrub_atlas": {
+          "bytes": 155585,
+          "magic": "89504e"
+        }
+      },
+      "materials": {
+        "A03_Shrub": {
+          "alphaMode": "MASK",
+          "doubleSided": true,
+          "has_base_texture": true
+        }
+      },
+      "wind_mask_range": [
+        [
+          0.0,
+          0.83
+        ],
+        [
+          0.0,
+          0.98
+        ]
+      ],
+      "custom_normals": true,
+      "shrub_size_m": [
+        1.69,
+        1.74,
+        1.28
+      ],
+      "preview": "assets/library/previews/A03_thorny_shrub_low.png"
+    },
+    "med": {
+      "glb": "public/assets/models/vegetation/a03_thorny_shrub_med.glb",
+      "glb_bytes": 232956,
+      "shrub_triangles": 700,
+      "flowers_triangles": 44,
+      "pods_triangles": 36,
+      "total_triangles_all_nodes": 780,
+      "draw_calls_all_nodes": 3,
+      "nodes": [
+        "A03_med_Flowers",
+        "A03_med_Pods",
+        "A03_med_Shrub",
+        "A03_Shrub_MED"
+      ],
+      "attributes": [
+        "COLOR_0",
+        "NORMAL",
+        "POSITION",
+        "TEXCOORD_0",
+        "TEXCOORD_1"
+      ],
+      "images": {
+        "a03_shrub_atlas": {
+          "bytes": 155585,
+          "magic": "89504e"
+        }
+      },
+      "materials": {
+        "A03_Shrub": {
+          "alphaMode": "MASK",
+          "doubleSided": true,
+          "has_base_texture": true
+        }
+      },
+      "wind_mask_range": [
+        [
+          0.0,
+          0.88
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "custom_normals": true,
+      "shrub_size_m": [
+        1.89,
+        1.86,
+        1.28
+      ],
+      "preview": "assets/library/previews/A03_thorny_shrub_med.png"
+    },
+    "high": {
+      "glb": "public/assets/models/vegetation/a03_thorny_shrub_high.glb",
+      "glb_bytes": 300368,
+      "shrub_triangles": 1400,
+      "flowers_triangles": 68,
+      "pods_triangles": 56,
+      "total_triangles_all_nodes": 1524,
+      "draw_calls_all_nodes": 3,
+      "nodes": [
+        "A03_high_Flowers",
+        "A03_high_Pods",
+        "A03_high_Shrub",
+        "A03_Shrub_HIGH"
+      ],
+      "attributes": [
+        "COLOR_0",
+        "NORMAL",
+        "POSITION",
+        "TEXCOORD_0",
+        "TEXCOORD_1"
+      ],
+      "images": {
+        "a03_shrub_atlas": {
+          "bytes": 155585,
+          "magic": "89504e"
+        }
+      },
+      "materials": {
+        "A03_Shrub": {
+          "alphaMode": "MASK",
+          "doubleSided": true,
+          "has_base_texture": true
+        }
+      },
+      "wind_mask_range": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "custom_normals": true,
+      "shrub_size_m": [
+        2.36,
+        2.34,
+        1.35
+      ],
+      "preview": "assets/library/previews/A03_thorny_shrub_high.png"
+    }
+  },
+  "texture": {
+    "bytes": 155585,
+    "spread": 0.5,
+    "size": [
+      512,
+      512
+    ],
+    "file": "a03_shrub_atlas.png"
+  },
+  "previews": {
+    "comparison": "assets/library/previews/A03_thorny_shrub_tiers_comparison.png",
+    "seasons": "assets/library/previews/A03_thorny_shrub_seasons.png",
+    "field": "assets/library/previews/A03_thorny_shrub_field.png"
+  },
+  "a02_import_test": {
+    "a02_import": "ok",
+    "a02_vertices": 324,
+    "a02_height_after_import_m": 0.705,
+    "a02_material": "A02_Grass"
+  },
+  "nodes_in_each_glb": {
+    "<tier>_Shrub": "stems, thorns and leaf cards; always shown",
+    "<tier>_Flowers": "cream puff-flower cards; show in the flowering season",
+    "<tier>_Pods": "hanging seed-pod cards; show in the fruiting season"
+  },
+  "variants": {
+    "how": "multiply the base colour by these RGB values in the game; toggle the Flowers and Pods nodes by season",
+    "tints": {
+      "green": [
+        0.85,
+        1.05,
+        0.8
+      ],
+      "dry": [
+        1.2,
+        0.8,
+        0.5
+      ],
+      "burned": [
+        0.3,
+        0.27,
+        0.25
+      ]
+    },
+    "sizes": "small and large are instance scale (about 0.75 to 1.5) in the game, not separate meshes"
+  },
+  "wind": {
+    "mode": "shader mask only",
+    "attribute": "TEXCOORD_1 (uv1 in three.js): x = sway weight (0 at base, 1 at outer tips), y = per-part phase 0..1",
+    "node_animation": "none"
+  },
+  "shared": {
+    "origin": "shrub base centre at the world origin, Z up in Blender, Y up in glTF",
+    "material": "one painted material, alpha-cut (MASK, cutoff 0.5), double sided, one draw call per node",
+    "collision": "none, or a small sphere or cylinder at the base if the shrub must block movement",
+    "thorns": "geometry on med and high tiers; none on low (too small to read)"
+  },
+  "game_integration_tested": false,
+  "review_notes": [
+    "Judge the painted leaf clusters and inked edges in the field and season previews.",
+    "Check the alpha-cut cost on weak phones; leaf cards overlap a lot.",
+    "Test shader wind, season toggles and tints in the game once 10 assets exist."
+  ],
+  "verification": {
+    "method": "GLB files re-read from disk after export",
+    "checks_passed": [
+      "triangle total in each GLB equals the total built (344 / 780 / 1524 across Shrub+Flowers+Pods)",
+      "base Shrub node is exactly 300 / 700 / 1400 triangles",
+      "all three nodes (Shrub, Flowers, Pods) present in every GLB",
+      "embedded atlas is a valid 512x512 PNG, 155,585 bytes, alpha spread 0.5 (not blank)",
+      "material is alpha-cut MASK, cutoff 0.5, double sided; COLOR_0, TEXCOORD_1 and custom normals present",
+      "the A02 med GLB imported cleanly into Blender with its material and 0.705 m height (cross-asset file test)"
+    ],
+    "bugs_found_and_fixed": [
+      "flower painter called a NumPy method on Python's random.Random",
+      "leftover cleanup loop read names of deleted objects"
+    ],
+    "preview_pixel_stats": {
+      "A03_thorny_shrub_low.png": {
+        "size": [
+          900,
+          900
+        ],
+        "bytes": 992335,
+        "mean_rgb": [
+          0.675,
+          0.611,
+          0.474
+        ],
+        "std": 0.166,
+        "foliage_like_share": 0.105
+      },
+      "A03_thorny_shrub_med.png": {
+        "size": [
+          900,
+          900
+        ],
+        "bytes": 1022926,
+        "mean_rgb": [
+          0.665,
+          0.604,
+          0.465
+        ],
+        "std": 0.168,
+        "foliage_like_share": 0.122
+      },
+      "A03_thorny_shrub_high.png": {
+        "size": [
+          900,
+          900
+        ],
+        "bytes": 1098197,
+        "mean_rgb": [
+          0.638,
+          0.584,
+          0.442
+        ],
+        "std": 0.178,
+        "foliage_like_share": 0.158
+      },
+      "A03_thorny_shrub_tiers_comparison.png": {
+        "size": [
+          1600,
+          600
+        ],
+        "bytes": 1402016,
+        "mean_rgb": [
+          0.608,
+          0.563,
+          0.419
+        ],
+        "std": 0.191,
+        "foliage_like_share": 0.202
+      },
+      "A03_thorny_shrub_seasons.png": {
+        "size": [
+          1800,
+          600
+        ],
+        "bytes": 1527281,
+        "mean_rgb": [
+          0.62,
+          0.57,
+          0.426
+        ],
+        "std": 0.198,
+        "foliage_like_share": 0.144
+      },
+      "A03_thorny_shrub_field.png": {
+        "size": [
+          1800,
+          720
+        ],
+        "bytes": 2738536,
+        "mean_rgb": [
+          0.443,
+          0.438,
+          0.241
+        ],
+        "std": 0.191,
+        "foliage_like_share": 0.441
+      }
+    },
+    "visual_review_note": "The first-run tier comparison was inspected by eye and led to a revision (smaller cards, thicker stems, drier palette, more upright cards, bigger thorns). The revised renders could not be inspected by eye because Blender's window was rendering black; only numeric pixel checks were possible."
+  },
+  "known_limits": [
+    "Not tested in the game; shader wind, season toggles and tints are untested until 10 assets exist.",
+    "Leaf cards overlap a lot; check alpha-cut overdraw on weak phones.",
+    "Revised look not yet seen by eye after the second run; judge the previews and tell me what to change.",
+    "Tints (green, dry, burned) multiply the painted texture; the game must implement them."
+  ]
+}
